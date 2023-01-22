@@ -1,5 +1,5 @@
-(ns phel-web-skeleton\app
-  (:require phel-web-skeleton\controller\routes)
+(ns web-skeleton\app
+  (:require web-skeleton\controller\routes)
   (:require phel\router :as r)
   (:require phel\http :as h))
 

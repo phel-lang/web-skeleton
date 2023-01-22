@@ -11,8 +11,8 @@ $projectRootDir = dirname(__DIR__);
 require $projectRootDir . '/vendor/autoload.php';
 
 if ($phelMode === 'slow') {
-    Phel::run($projectRootDir, 'phel-web-skeleton\app');
+    Phel::run($projectRootDir, 'web-skeleton\app');
 } else {
-    require_once $projectRootDir . "/out/phel_web_skeleton/app.php";
+    require_once $projectRootDir . "/out/web_skeleton/app.php";
 }
 

@@ -1,6 +1,6 @@
-(ns phel-web-skeleton\controller\routes
-  (:require phel-web-skeleton\view\main :refer [index-html])
-  (:require phel-web-skeleton\module\greet :as g)
+(ns web-skeleton\controller\routes
+  (:require web-skeleton\view\main :refer [index-html])
+  (:require web-skeleton\module\greet :as g)
   (:require phel\router :as r)
   (:require phel\http :as h))
 

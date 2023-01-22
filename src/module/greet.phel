@@ -1,4 +1,4 @@
-(ns phel-web-skeleton\module\greet)
+(ns web-skeleton\module\greet)
 
 (defn greet [name]
   (str "Hello, " name))

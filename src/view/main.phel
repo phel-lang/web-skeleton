@@ -1,4 +1,4 @@
-(ns phel-web-skeleton\view\main
+(ns web-skeleton\view\main
   (:require phel\html :refer [html doctype]))
 
 (def- head
