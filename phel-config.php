@@ -6,6 +6,7 @@ return [
     'src-dirs' => ['src'],
     'test-dirs' => ['tests'],
     'vendor-dir' => 'vendor',
+    'out-dir' => 'out',
     'export' => [
         'directories' => ['src/modules'],
         'namespace-prefix' => 'PhelGenerated',

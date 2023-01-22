@@ -23,6 +23,8 @@
     }
   },
   "scripts": {
+    "run:dev": "PHEL_MODE=slow php -S localhost:8080 -t public",
+    "run:prod": "composer compile && PHEL_MODE=fast php -S localhost:8080 -t public",
     "format": "vendor/bin/phel format src tests",
     "compile": "vendor/bin/phel compile --no-cache",
     "test": "vendor/bin/phel test"

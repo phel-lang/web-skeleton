@@ -6,7 +6,8 @@
 
 (defn index-handler [req]
   (h/response-from-map {:status 200
-                        :body (print index-html)}))
+                        :body index-html}))
 
 (defn ping-handler [req]
-  (h/response-from-map {:status 200 :body (g/greet "pong")}))
+  (h/response-from-map {:status 200
+                        :body (g/greet (str "pong - " (rand)))}))

@@ -29,12 +29,14 @@ You can either use it from your local machine OR using docker.
 ### Phel code
 
 1. Write your phel code in `src/`
-2. Execute your web server with `php -S localhost:8080 -t public/`
+2. Execute your web server with 
+   - `composer run:dev`: it will recompile the code on every request
+   - `composer run:prod`: it will run the same compiled code on every request 
 
 ### Tests
 
 1. Write your phel tests in `tests/`
-1. Execute your tests with `./vendor/bin/phel test`
+1. Execute your tests with `composer test`
 
 ## More about starting with phel
 
