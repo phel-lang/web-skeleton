@@ -10,3 +10,4 @@ vendor/
 *.cache
 .phel-repl-history
 phel-config-local.php
+composer.lock
