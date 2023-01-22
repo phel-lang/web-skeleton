@@ -1,0 +1,15 @@
+(ns phel-web-skeleton\app
+  (:require phel-web-skeleton\controller\routes)
+  (:require phel\router :as r)
+  (:require phel\http :as h))
+
+(def app
+  (r/handler
+   (r/router
+    [["/" {:handler routes/index-handler}]
+     ["/ping" {:name ::ping
+               :get {:handler routes/ping-handler}
+               :post {:handler routes/ping-handler}}]])))
+
+(when-not *compile-mode*
+  (h/emit-response (app (h/request-from-globals))))

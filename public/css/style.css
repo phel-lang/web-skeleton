@@ -1,0 +1,35 @@
+html, body {
+    font-family: "Helvetica", "Arial", sans-serif;
+    font-weight: 200;
+}
+
+.full-height {
+    height: 80vh;
+}
+
+.flex-center {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+}
+
+.position-ref {
+    position: relative;
+}
+
+.content {
+    text-align: center;
+}
+
+.links > a {
+    color: #35157f;
+    padding: 0 15px;
+    font-weight: bolder;
+    font-size: larger;
+    letter-spacing: .1rem;
+    text-decoration: none;
+}
+
+.logo {
+    margin-bottom: 60px;
+}

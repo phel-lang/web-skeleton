@@ -1,0 +1,30 @@
+(ns phel-web-skeleton\view\main
+  (:require phel\html :refer [html doctype]))
+
+(def- head
+  [:head
+   [:meta {:charset "utf-8"}]
+   [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
+   [:link {:rel "stylesheet" :href "./css/style.css"}]
+   [:link {:rel "icon" :type "image/png" :href "./images/favicon-32.png"}]
+   [:title "Phel-lang"]])
+
+(def- logo
+  [:div {:class "logo"}
+   [:img {:src "./images/logo.svg" :width "360"}]])
+
+(def- links
+  [:div {:class "links"}
+   [:a {:href "https://phel-lang.org/"} "Homepage"]
+   [:a {:href "https://phel-lang.org/documentation/getting-started/"} "Getting started"]
+   [:a {:href "https://github.com/phel-lang/phel-lang"} "GitHub"]
+   [:a {:href "https://gitter.im/phel-lang/community"} "Community"]])
+
+(def- content
+  [:div {:class "flex-center position-ref full-height"}
+   [:div {:class "content"} logo links]])
+
+(def index-html (html
+                 (doctype :html5)
+                 head
+                 content))

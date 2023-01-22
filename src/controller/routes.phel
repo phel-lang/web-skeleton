@@ -1,0 +1,12 @@
+(ns phel-web-skeleton\controller\routes
+  (:require phel-web-skeleton\view\main :refer [index-html])
+  (:require phel-web-skeleton\module\greet :as g)
+  (:require phel\router :as r)
+  (:require phel\http :as h))
+
+(defn index-handler [req]
+  (h/response-from-map {:status 200
+                        :body (print index-html)}))
+
+(defn ping-handler [req]
+  (h/response-from-map {:status 200 :body (g/greet "pong")}))

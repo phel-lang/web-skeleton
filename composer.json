@@ -1,0 +1,30 @@
+{
+  "name": "phel-lang/phel-web-skeleton",
+  "keywords": [
+    "phel",
+    "lisp",
+    "functional",
+    "language"
+  ],
+  "homepage": "https://phel-lang.org/",
+  "license": "MIT",
+  "require": {
+    "php": ">=8.0",
+    "ext-readline": "*",
+    "phel-lang/phel-lang": "^0.8",
+    "phel-lang/router": "dev-main"
+  },
+  "require-dev": {
+    "symfony/var-dumper": "^5.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "PhelGenerated\\": "src/PhelGenerated"
+    }
+  },
+  "scripts": {
+    "format": "vendor/bin/phel format src tests",
+    "compile": "vendor/bin/phel compile --no-cache",
+    "test": "vendor/bin/phel test"
+  }
+}

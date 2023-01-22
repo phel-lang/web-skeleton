@@ -1,0 +1,6 @@
+(ns phel-web-skeleton-tests\module\example-test
+  (:require phel-web-skeleton\module\greet :as g)
+  (:require phel\test :refer [deftest is]))
+
+(deftest test-greet
+  (is (= "Hello, Name" (g/greet "Name"))))

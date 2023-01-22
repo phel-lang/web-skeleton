@@ -1,0 +1,20 @@
+on: [push]
+
+name: CI
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.0
+          coverage: none
+      - name: Install dependencies
+        run: composer update --no-interaction --no-ansi --no-progress
+      - name: Run phel tests
+        run: vendor/bin/phel test
