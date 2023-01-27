@@ -1,5 +1,5 @@
 {
-  "name": "phel-lang/phel-web-skeleton",
+  "name": "phel-lang/web-skeleton",
   "keywords": [
     "phel",
     "lisp",
@@ -10,7 +10,6 @@
   "license": "MIT",
   "require": {
     "php": ">=8.0",
-    "ext-readline": "*",
     "phel-lang/phel-lang": "^0.8",
     "phel-lang/router": "dev-main"
   },
