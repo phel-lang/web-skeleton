@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 use Phel\Phel;
 
-$phelMode = getenv('PHEL_MODE') ?: 'slow';
-
 $projectRootDir = dirname(__DIR__);
-
 require $projectRootDir . '/vendor/autoload.php';
 
-if ($phelMode === 'slow') {
-    Phel::run($projectRootDir, 'web-skeleton\app');
-} else {
+$appFile = $projectRootDir . "/out/web_skeleton/app.php";
+
+$phelMode = getenv('PHEL_MODE') ?: 'fast';
+if ($phelMode === 'fast' && file_exists($appFile)) {
     require_once $projectRootDir . "/out/web_skeleton/app.php";
+} else {
+    Phel::run($projectRootDir, 'web-skeleton\app');
 }
 
