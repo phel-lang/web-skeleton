@@ -10,8 +10,8 @@
   "license": "MIT",
   "require": {
     "php": ">=8.0",
-    "phel-lang/phel-lang": "^0.8",
-    "phel-lang/router": "dev-main"
+    "phel-lang/phel-lang": "^0.10",
+    "phel-lang/router": "^0.1"
   },
   "require-dev": {
     "symfony/var-dumper": "^5.4"
@@ -23,9 +23,9 @@
   },
   "scripts": {
     "run:dev": "PHEL_MODE=slow php -S localhost:8080 -t public",
-    "run:prod": "composer compile && php -S localhost:8080 -t public",
-    "format": "vendor/bin/phel format src tests",
-    "compile": "vendor/bin/phel compile --no-cache",
+    "run:prod": "composer build && php -S localhost:8080 -t public",
+    "build": "vendor/bin/phel build --no-cache",
+    "format": "vendor/bin/phel format",
     "test": "vendor/bin/phel test"
   }
 }
