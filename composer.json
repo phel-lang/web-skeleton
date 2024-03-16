@@ -22,7 +22,7 @@
     }
   },
   "scripts": {
-    "run:dev": "PHEL_MODE=dev php -S localhost:8080 -t public",
+    "run:dev": "rm -rf out && php -S localhost:8080 -t public",
     "run:prod": "composer build && php -S localhost:8080 -t public",
     "build": "vendor/bin/phel build --no-cache",
     "format": "vendor/bin/phel format",
