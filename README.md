@@ -12,7 +12,7 @@ Phel requires at least PHP 8.0 and Composer.
 
 #### Locally
 
-1. Ensure you have PHP >=8.0 (Some help about how to install multiple PHP versions locally on [linux](https://github.com/phpbrew/phpbrew) and [Mac](https://github.com/shivammathur/homebrew-php))
+1. Ensure you have PHP >=8.2 (Some help about how to install multiple PHP versions locally on [linux](https://github.com/phpbrew/phpbrew) and [Mac](https://github.com/shivammathur/homebrew-php))
 1. Ensure you have [composer](https://getcomposer.org/composer-stable.phar)
 1. Clone this repo
 1. Install the dependencies | `composer install` 
