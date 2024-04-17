@@ -1,0 +1,11 @@
+version: "3.8"
+
+services:
+  phel_web_skeleton:
+    build:
+      context: .
+      dockerfile: build/Dockerfile
+    container_name: phel_web_skeleton
+    hostname: php
+    volumes:
+      - .:/srv/phel-web-skeleton:delegated
