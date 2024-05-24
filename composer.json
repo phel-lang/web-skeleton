@@ -10,8 +10,8 @@
   "license": "MIT",
   "require": {
     "php": ">=8.2",
-    "phel-lang/phel-lang": "^0.13",
-    "phel-lang/router": "^0.3"
+    "phel-lang/phel-lang": "^0.14",
+    "phel-lang/router": "^0.4"
   },
   "require-dev": {
     "symfony/var-dumper": "^6.4"

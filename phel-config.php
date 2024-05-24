@@ -4,21 +4,21 @@ declare(strict_types=1);
 
 use Phel\Config\PhelConfig;
 use Phel\Config\PhelExportConfig;
-use Phel\Config\PhelOutConfig;
+use Phel\Config\PhelBuildConfig;
 
 return (new PhelConfig())
     ->setSrcDirs(['src'])
     ->setTestDirs(['tests'])
     ->setVendorDir('vendor')
-    ->setOut((new PhelOutConfig())
+    ->setKeepGeneratedTempFiles(false)
+    ->setFormatDirs(['src', 'tests'])
+    ->setBuildConfig((new PhelBuildConfig())
         ->setMainPhelNamespace('web-skeleton\app')
         ->setMainPhpPath('out/index.php'))
-    ->setExport((new PhelExportConfig())
-        ->setDirectories(['src/phel'])
+    ->setExportConfig((new PhelExportConfig())
+        ->setFromDirectories(['src/phel'])
         ->setNamespacePrefix('PhelGenerated')
         ->setTargetDirectory('src/PhelGenerated'))
     ->setIgnoreWhenBuilding(['local.phel'])
-    ->setNoCacheWhenBuilding(['web_skeleton'])
-    ->setKeepGeneratedTempFiles(false)
-    ->setFormatDirs(['src', 'tests'])
+    ->setNoCacheWhenBuilding(['web_skeleton/app'])
 ;
