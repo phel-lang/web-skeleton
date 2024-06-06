@@ -8,6 +8,7 @@
   ],
   "homepage": "https://phel-lang.org/",
   "license": "MIT",
+  "type": "project",
   "require": {
     "php": ">=8.2",
     "phel-lang/phel-lang": "^0.14",
