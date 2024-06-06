@@ -26,6 +26,7 @@
     "run:prod": "composer build && php -S localhost:8080 -t public",
     "build": "vendor/bin/phel build --no-cache",
     "format": "vendor/bin/phel format",
-    "test": "vendor/bin/phel test"
+    "test": "vendor/bin/phel test",
+    "repl": "vendor/bin/phel repl"
   }
 }
