@@ -1,5 +1,6 @@
 {
   "name": "phel-lang/web-skeleton",
+  "description": "A minimalistic skeleton to build your web-app using Phel Lang.",
   "keywords": [
     "phel",
     "lisp",
