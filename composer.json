@@ -24,11 +24,20 @@
     }
   },
   "scripts": {
-    "run:dev": "rm -rf out && php -S localhost:8080 -t public",
-    "run:prod": "composer build && php -S localhost:8080 -t public",
+    "run:dev": [
+      "Composer\\Config::disableProcessTimeout",
+      "rm -rf out && php -S localhost:8080 -t public"
+    ],
+    "run:prod": [
+      "Composer\\Config::disableProcessTimeout",
+      "composer build && php -S localhost:8080 -t public"
+    ],
     "build": "vendor/bin/phel build --no-cache",
     "format": "vendor/bin/phel format",
     "test": "vendor/bin/phel test",
-    "repl": "vendor/bin/phel repl"
+    "repl": [
+      "Composer\\Config::disableProcessTimeout",
+      "vendor/bin/phel repl"
+    ]
   }
 }
