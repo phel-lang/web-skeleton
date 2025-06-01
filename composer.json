@@ -12,8 +12,8 @@
   "type": "project",
   "require": {
     "php": ">=8.2",
-    "phel-lang/phel-lang": "^0.16",
-    "phel-lang/router": "^0.6"
+    "phel-lang/phel-lang": "^0.17",
+    "phel-lang/router": "^0.7"
   },
   "require-dev": {
     "symfony/var-dumper": "^6.4"
