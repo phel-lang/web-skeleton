@@ -8,11 +8,11 @@ This repository provides you the basic setup to start coding a website using phe
 
 ### Requirements
 
-Phel requires at least PHP 8.2 and Composer.
+Phel requires at least PHP 8.3.
 
 #### Locally (no Docker)
 
-1. Ensure you have PHP >=8.2 (Some help about how to install multiple PHP versions locally on [linux](https://github.com/phpbrew/phpbrew) and [Mac](https://github.com/shivammathur/homebrew-php))
+1. Ensure you have PHP >=8.3 (Some help about how to install multiple PHP versions locally on [linux](https://github.com/phpbrew/phpbrew) and [Mac](https://github.com/shivammathur/homebrew-php))
 1. Ensure you have [composer](https://getcomposer.org/composer-stable.phar)
 1. Clone this repo
 1. Install the dependencies | `composer install` 
