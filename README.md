@@ -8,7 +8,7 @@ This repository provides you the basic setup to start coding a website using phe
 
 ### Requirements
 
-Phel requires at least PHP 8.3.
+Phel requires at least PHP 8.3 and Composer.
 
 #### Locally (no Docker)
 
