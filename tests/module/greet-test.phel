@@ -1,6 +1,12 @@
-(ns phel-web-skeleton-tests\module\example-test
-  (:require web-skeleton\module\greet :as g)
-  (:require phel\test :refer [deftest is]))
+(ns web-skeleton-tests.module.greet-test
+  (:require web-skeleton.module.greet :as g)
+  (:require phel.test :refer [deftest is]))
 
-(deftest test-greet
-  (is (= "Hello, Name" (g/greet "Name"))))
+(deftest greet-returns-hello
+  (is (= "Hello, Name!" (g/greet "Name")))
+  (is (= "Hello, world!" (g/greet "world"))))
+
+(deftest greet-many-joins-with-comma
+  (is (= "" (g/greet-many [])))
+  (is (= "Hello, A!" (g/greet-many ["A"])))
+  (is (= "Hello, A!, Hello, B!" (g/greet-many ["A" "B"]))))

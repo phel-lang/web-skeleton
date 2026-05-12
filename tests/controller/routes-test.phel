@@ -1,0 +1,29 @@
+(ns web-skeleton-tests.controller.routes-test
+  (:require web-skeleton.controller.routes :as routes)
+  (:require phel.json :as json)
+  (:require phel.test :refer [deftest is]))
+
+(deftest index-handler-returns-html
+  (let [res (routes/index-handler {})]
+    (is (= 200 (:status res)))
+    (is (= "text/html; charset=utf-8" (get-in res [:headers :content-type])))))
+
+(deftest ping-handler-returns-json
+  (let [res  (routes/ping-handler {})
+        body (json/decode (:body res))]
+    (is (= 200 (:status res)))
+    (is (= "pong" (:message body)))))
+
+(deftest greet-handler-uses-path-param
+  (let [req {:attributes {:match {:path-params {:name "Phel"}}}}
+        res (routes/greet-handler req)]
+    (is (= 200 (:status res)))
+    (is (= "Hello, Phel!" (:greeting (json/decode (:body res)))))))
+
+(deftest greet-handler-defaults-to-world
+  (let [res (routes/greet-handler {})]
+    (is (= "Hello, world!" (:greeting (json/decode (:body res)))))))
+
+(deftest not-found-handler-returns-404
+  (let [res (routes/not-found-handler {})]
+    (is (= 404 (:status res)))))

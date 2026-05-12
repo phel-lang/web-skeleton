@@ -11,12 +11,11 @@
   "license": "MIT",
   "type": "project",
   "require": {
-    "php": ">=8.3",
-    "phel-lang/phel-lang": ">=0.24",
-    "phel-lang/router": "^0.8"
+    "php": ">=8.4",
+    "phel-lang/phel-lang": "dev-main"
   },
   "require-dev": {
-    "symfony/var-dumper": "^6.4"
+    "symfony/var-dumper": "^7.3"
   },
   "autoload": {
     "psr-4": {

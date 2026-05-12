@@ -1,0 +1,15 @@
+(ns web-skeleton.middleware)
+
+(defn wrap-logger
+  "Middleware that prints `METHOD path` for every request before delegating."
+  [handler request]
+  (let [method (:method request)
+        path   (get-in request [:uri :path])]
+    (php/error_log (str "[req] " method " " path))
+    (handler request)))
+
+(defn wrap-server-header
+  "Middleware that tags every response with a `Server` header."
+  [handler request]
+  (let [response (handler request)]
+    (update response :headers assoc :server "phel-web-skeleton")))

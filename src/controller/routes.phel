@@ -1,13 +1,30 @@
-(ns web-skeleton\controller\routes
-  (:require web-skeleton\view\main :refer [index-html])
-  (:require web-skeleton\module\greet :as g)
-  (:require phel\router :as r)
-  (:require phel\http :as h))
+(ns web-skeleton.controller.routes
+  (:require web-skeleton.view.main :refer [index-html])
+  (:require web-skeleton.module.greet :as g)
+  (:require phel.http :as h)
+  (:require phel.json :as json))
 
-(defn index-handler [req]
-  (h/response-from-map {:status 200
-                        :body index-html}))
+(defn- html-response [status body]
+  (h/response-from-map
+   {:status  status
+    :headers {:content-type "text/html; charset=utf-8"}
+    :body    body}))
 
-(defn ping-handler [req]
-  (h/response-from-map {:status 200
-                        :body (g/greet (str "pong - " (rand)))}))
+(defn- json-response [status data]
+  (h/response-from-map
+   {:status  status
+    :headers {:content-type "application/json"}
+    :body    (json/encode data)}))
+
+(defn index-handler [_req]
+  (html-response 200 index-html))
+
+(defn ping-handler [_req]
+  (json-response 200 {:message "pong" :ts (php/time)}))
+
+(defn greet-handler [req]
+  (let [name (get-in req [:attributes :match :path-params :name] "world")]
+    (json-response 200 {:greeting (g/greet name)})))
+
+(defn not-found-handler [_req]
+  (html-response 404 "<h1>404</h1><p>Page not found.</p>"))

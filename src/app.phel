@@ -1,15 +1,20 @@
-(ns web-skeleton\app
-  (:require web-skeleton\controller\routes)
-  (:require phel\router :as r)
-  (:require phel\http :as h))
+(ns web-skeleton.app
+  (:require web-skeleton.controller.routes :as routes)
+  (:require web-skeleton.middleware :as mw)
+  (:require phel.router :as r)
+  (:require phel.http :as h))
 
 (def app
   (r/handler
    (r/router
     [["/" {:handler routes/index-handler}]
      ["/ping" {:name ::ping
-               :get {:handler routes/ping-handler}
-               :post {:handler routes/ping-handler}}]])))
+               :get  {:handler routes/ping-handler}
+               :post {:handler routes/ping-handler}}]
+     ["/greet/{name}" {:name ::greet
+                       :get  {:handler routes/greet-handler}}]])
+   {:middleware [mw/wrap-logger mw/wrap-server-header]
+    :not-found  routes/not-found-handler}))
 
 (when-not *build-mode*
   (h/emit-response (app (h/request-from-globals))))

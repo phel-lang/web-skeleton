@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 use Phel\Phel;
 
-$projectRootDir = dirname(__DIR__);
-require $projectRootDir . '/vendor/autoload.php';
+$projectRoot = dirname(__DIR__);
 
-$appFile = $projectRootDir . "/out/index.php";
+require $projectRoot . '/vendor/autoload.php';
 
-if (file_exists($appFile)) {
-    require_once $appFile;
-} else {
-    Phel::run($projectRootDir, 'web-skeleton\app');
+$compiled = $projectRoot . '/out/index.php';
+
+if (is_file($compiled)) {
+    require $compiled;
+    return;
 }
 
+Phel::run($projectRoot, 'web-skeleton.app');

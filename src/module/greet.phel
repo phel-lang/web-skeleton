@@ -1,4 +1,12 @@
-(ns web-skeleton\module\greet)
+(ns web-skeleton.module.greet
+  (:require phel.string :as s))
 
-(defn greet [name]
-  (str "Hello, " name))
+(defn greet
+  "Returns a friendly greeting for `name`."
+  [name]
+  (str "Hello, " name "!"))
+
+(defn greet-many
+  "Greets every name in a collection, joined by `, `."
+  [names]
+  (s/join ", " (map greet names)))
