@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Phel\Config\PhelBuildConfig;
 use Phel\Config\PhelConfig;
-use Phel\Config\PhelExportConfig;
 
 return (new PhelConfig())
     ->withSrcDirs(['src'])
@@ -15,9 +14,5 @@ return (new PhelConfig())
     ->withBuildConfig((new PhelBuildConfig())
         ->withMainPhelNamespace('web-skeleton.app')
         ->withMainPhpPath('out/index.php'))
-    ->withExportConfig((new PhelExportConfig())
-        ->withFromDirectories(['src/phel'])
-        ->withNamespacePrefix('PhelGenerated')
-        ->withTargetDirectory('src/PhelGenerated'))
     ->withIgnoreWhenBuilding(['local.phel'])
     ->withNoCacheWhenBuilding(['web-skeleton.app']);
