@@ -3,114 +3,69 @@
 [![CI](https://github.com/phel-lang/web-skeleton/actions/workflows/ci.yml/badge.svg)](https://github.com/phel-lang/web-skeleton/actions/workflows/ci.yml)
 
 [Phel](https://phel-lang.org/) is a functional Lisp that compiles to PHP. This
-skeleton is the fastest way to start a small web app written in Phel: a
-routed HTTP server, JSON + HTML responses, middleware, request validation, a
-404 handler, and a test suite — all in a handful of `.phel` files.
+skeleton is the fastest way to start a small Phel web app: routed HTTP server,
+JSON + HTML responses, middleware, request validation, a 404 handler, and tests
+— in a handful of `.phel` files.
 
-**Batteries included:** `phel.router` · `phel.http` · `phel.html` · `phel.json`
-· `phel.schema` (validation) · `phel.test` · error-handling middleware · CI · Docker.
-
-## Requirements
-
-- PHP **>= 8.4**
-- [Composer](https://getcomposer.org/)
+**Included:** `phel.router` · `phel.http` · `phel.html` · `phel.json` ·
+`phel.schema` (validation) · `phel.test` · error-handling middleware · CI · Docker.
 
 ## Quick start
+
+Requires PHP **>= 8.4** and [Composer](https://getcomposer.org/).
 
 ```bash
 composer install
 composer run:dev    # http://localhost:8080 — recompiles every request
 ```
 
-Then open one of the sample routes:
+Sample routes:
 
-| Route             | What it shows                                                |
-| ----------------- | ------------------------------------------------------------ |
-| `GET /`           | HTML page rendered with `phel.html`                          |
-| `GET /ping`       | JSON response (`phel.json`)                                  |
-| `POST /ping`      | Per-method handler; echoes the parsed JSON body              |
-| `GET /greet/:name`| Path parameter validated with `phel.schema`                  |
-| `POST /greet`     | JSON body parsed + schema-validated (`{"name": "..."}`)      |
-| `GET /nope`       | Custom 404 handler                                           |
+| Route              | Shows                                          |
+| ------------------ | ---------------------------------------------- |
+| `GET /`            | HTML page (`phel.html`)                        |
+| `GET /ping`        | JSON response (`phel.json`)                    |
+| `POST /ping`       | Per-method handler; echoes parsed JSON body    |
+| `GET /greet/:name` | Path param validated with `phel.schema`        |
+| `POST /greet`      | JSON body parsed + schema-validated            |
+| `GET /nope`        | Custom 404 handler                             |
+
+## Commands
+
+```bash
+composer run:dev       # dev server, recompiles every request
+composer run:prod      # build once, run compiled PHP
+composer build         # AOT-compile src/ into out/
+composer test          # run phel tests
+composer format        # format src/ and tests/
+composer check         # format:check + test (run before pushing)
+composer repl          # interactive Phel REPL
+```
 
 ## Project layout
 
 ```
 src/
-  app.phel               ; ns web-skeleton.app — IO entry point (request in, response out)
-  router.phel            ; route table (as data) + wired app handler + middleware
+  app.phel               ; IO entry point (request in, response out)
+  router.phel            ; route table (data) + wired handler + middleware
   config.phel            ; env-resolved configuration map
-  middleware.phel        ; exception → 500, logger, server-header middleware
-  http/response.phel     ; semantic helpers (ok/bad-request/not-found) over phel.http
-  controller/routes.phel ; request handlers (one per method, body parsing, validation)
+  middleware.phel        ; exception → 500, logger, server-header
+  http/response.phel     ; ok/bad-request/not-found over phel.http
+  controller/routes.phel ; request handlers (per method, parsing, validation)
   module/greet.phel      ; pure domain code
   module/schema.phel     ; request schemas (phel.schema, Malli-style vectors)
-  view/main.phel         ; HTML view built with phel.html
-tests/
-  router-test.phel       ; end-to-end routing (404 / 405 / dispatch)
-  middleware-test.phel
-  controller/routes-test.phel
-  module/greet-test.phel
-  module/schema-test.phel
-public/
-  index.php              ; web entry — serves compiled out/ if present
+  view/main.phel         ; HTML view (phel.html)
+tests/                   ; mirrors src/, uses phel.test
+public/index.php         ; web entry — serves compiled out/ if present
 phel-config.php          ; Phel build / format config
 ```
 
-Phel namespaces use the modern dot separator (e.g. `web-skeleton.controller.routes`).
-
-## Commands
-
-```bash
-composer run:dev       # dev server, recompiles every request (no out/ dir)
-composer run:prod      # builds once and runs the compiled PHP
-composer build         # AOT-compile src/ into out/
-composer test          # run phel tests
-composer format        # format src/ and tests/
-composer format:check  # fail if anything is unformatted (used in CI)
-composer check         # format:check + test (run before pushing)
-composer repl          # interactive Phel REPL
-```
-
-## Request validation (`phel.schema`)
-
-Schemas are plain Malli-style vectors, kept in `module/schema.phel`. Validate
-request data at the edge of a handler with `phel.schema` directly —
-`sc/conform` coerces and returns the value, or `sc/invalid-marker` on failure:
-
-```phel
-(def greet-params
-  [:map [:name [:and :string [:re "/^.{1,50}$/"]]]])
-
-;; in a handler (see conform-or-error in controller/routes.phel)
-(let [result (sc/conform greet-params {:name name})]
-  (if (= result sc/invalid-marker)
-    (bad-request (sc/human-readable-explain (sc/explain greet-params {:name name})))
-    (ok (:name result))))
-```
-
-`phel.schema` also offers `validate`, `coerce`, `generate` (test data), and
-`instrument!` for runtime function-contract checks.
-
-## Reading request bodies
-
-`phel.http` decodes the request body into `:parsed-body` for you: form fields
-(`$_POST`) for `application/x-www-form-urlencoded` / `multipart/form-data`, and
-the decoded JSON for `application/json`. Query string lives on `:query-params`
-(`$_GET`). Handlers just read the map — no manual `php://input` plumbing:
-
-```phel
-(defn greet-post-handler [req]
-  (greet-response (or (:parsed-body req) {})))
-```
-
-`:parsed-body` is `nil` for an empty or malformed body, so `(or … {})` gives a
-safe default and the schema reports the missing field.
+Namespaces use the dot separator (e.g. `web-skeleton.controller.routes`).
 
 ## Routing
 
-The route table is a plain value in `src/router.phel`, kept separate from the
-wiring so it can be inspected and tested on its own:
+The route table is plain data in `src/router.phel`, separate from wiring so it
+can be inspected and tested on its own:
 
 ```phel
 (def routes
@@ -122,45 +77,62 @@ wiring so it can be inspected and tested on its own:
                      :get  {:handler ctrl/greet-handler}}]])
 ```
 
-Dispatch on the HTTP method belongs in the route data (`:get` / `:post`), not
-in the handler — the router answers `405` itself for unsupported methods.
+Method dispatch lives in the route data (`:get` / `:post`), not the handler —
+the router answers `405` itself. `r/handler` wraps the router into a
+`request -> response` function and accepts `:middleware`, `:not-found`,
+`:method-not-allowed`, and `:not-acceptable` options.
 
-`r/handler` wraps the router into a `request -> response` function and accepts
-options for global `:middleware`, a `:not-found` handler,
-`:method-not-allowed`, and `:not-acceptable`.
+> `r/compiled-router` is faster (macro-expanded) — use it when handlers are
+> referenced by keyword/name, since the macro embeds the route table.
 
-> `r/compiled-router` is a faster, macro-expanded alternative — use it when
-> handlers are referenced by keyword/name (not as raw function values), since
-> the macro embeds the route table into the compiled code.
+**Add a route:** write a `request -> response` handler in
+`src/controller/routes.phel`, register it in `routes`, add a test. That's the loop.
 
-### Add your own route
+```phel
+(defn time-handler [_req] (resp/ok {:now (php/time)}))
+;; ["/time" {:name ::time :get {:handler ctrl/time-handler}}]
+```
 
-1. Write a handler in `src/controller/routes.phel` — a `request -> response`
-   function. Use the semantic helpers in `web-skeleton.http.response`
-   (`resp/ok`, `resp/bad-request`, `resp/not-found`), or `phel.http`'s
-   `h/json-response` / `h/html-response` directly for an explicit status:
+Use the helpers in `web-skeleton.http.response` (`resp/ok`, `resp/bad-request`,
+`resp/not-found`) or `phel.http`'s `h/json-response` / `h/html-response` for an
+explicit status.
 
-   ```phel
-   (defn time-handler [_req]
-     (resp/ok {:now (php/time)}))
-   ```
+## Request validation (`phel.schema`)
 
-2. Register it in the `routes` table in `src/router.phel`:
+Schemas are Malli-style vectors in `module/schema.phel`. Validate at the edge of
+a handler — `sc/conform` coerces and returns the value, or `sc/invalid-marker`
+on failure:
 
-   ```phel
-   ["/time" {:name ::time :get {:handler ctrl/time-handler}}]
-   ```
+```phel
+(def greet-params [:map [:name [:and :string [:re "/^.{1,50}$/"]]]])
 
-3. Add a test in `tests/controller/routes-test.phel` and run `composer test`.
+(let [result (sc/conform greet-params {:name name})]
+  (if (= result sc/invalid-marker)
+    (bad-request (sc/human-readable-explain (sc/explain greet-params {:name name})))
+    (ok (:name result))))
+```
 
-That's the whole loop: handler → route → test.
+`phel.schema` also offers `validate`, `coerce`, `generate`, and `instrument!`.
+
+## Request bodies
+
+`phel.http` decodes the body into `:parsed-body` — form fields for
+urlencoded/multipart, decoded JSON for `application/json`. Query string is
+`:query-params`. Handlers just read the map:
+
+```phel
+(defn greet-post-handler [req]
+  (greet-response (or (:parsed-body req) {})))
+```
+
+`:parsed-body` is `nil` for an empty/malformed body, so `(or … {})` gives a safe
+default and the schema reports the missing field.
 
 ## Middleware
 
-Middleware is a 2-arg function `(fn [handler request] ...)`. Compose it via
-`:middleware` on `r/handler` (global) or on a route's `:middleware` key. The
-first entry in the vector is the outermost wrapper, so `wrap-exception` goes
-first to catch anything the inner handlers throw and answer a JSON `500`:
+A 2-arg function `(fn [handler request] ...)`, composed via `:middleware` on
+`r/handler` (global) or a route. First entry is outermost — `wrap-exception`
+goes first to catch throws and answer a JSON `500`:
 
 ```phel
 (defn wrap-exception [handler request]
@@ -169,57 +141,35 @@ first to catch anything the inner handlers throw and answer a JSON `500`:
     (catch \Throwable e
       (php/error_log (str "[err] " (php/-> e (getMessage))))
       (h/json-response 500 {:error "internal server error"}))))
-
-(defn wrap-server-header [handler request]
-  (let [response (handler request)]
-    (update response :headers assoc :server (:server-header cfg/config))))
-```
-
-## Tests
-
-Tests live in `tests/` and use `phel.test`:
-
-```bash
-composer test
 ```
 
 ## AI assistants
 
-The skeleton is agent-agnostic — no tool-specific files are committed. Generate
-the adapters for whatever assistant you use with Phel's installer:
+Agent-agnostic — no tool-specific files committed. Generate adapters with Phel's
+installer (output is `.gitignore`d, so each dev installs their own):
 
 ```bash
-vendor/bin/phel agent-install --auto   # only the agents already used in this project
-vendor/bin/phel agent-install claude   # or a specific one (claude, cursor, codex, gemini, copilot, aider)
+vendor/bin/phel agent-install --auto    # agents already used in this project
+vendor/bin/phel agent-install claude     # or: cursor, codex, gemini, copilot, aider
+vendor/bin/phel agent-install --check    # catch drift after composer update
 ```
-
-It writes a neutral `.agents/` docs tree plus the per-tool adapter (e.g.
-`.claude/`, `AGENTS.md`). All of it is `.gitignore`d, so each dev installs
-their own; run `agent-install --check` after `composer update` to catch drift.
 
 ## Docker
 
-Development (mounts the source, recompiles per request):
-
 ```bash
+# Dev — mounts source, recompiles per request
 docker compose up -d --build
-docker exec -ti -u dev phel_web_skeleton bash
-composer install
-```
+docker exec -ti -u dev phel_web_skeleton bash && composer install
 
-Production (multi-stage build → slim runtime serving compiled `out/`):
-
-```bash
+# Prod — multi-stage build → slim runtime serving compiled out/
 docker build -f build/Dockerfile.prod -t phel-web-skeleton .
 docker run --rm -p 8080:8080 phel-web-skeleton
 ```
 
-## Contributing
+## More
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Changes are tracked in
-[CHANGELOG.md](CHANGELOG.md).
-
-## Learn more
-
-- [Phel documentation](https://phel-lang.org/documentation/getting-started/)
-- [Phel on GitHub](https://github.com/phel-lang/phel-lang)
+- [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md)
+- [Phel docs](https://phel-lang.org/documentation/getting-started/) ·
+  [Phel on GitHub](https://github.com/phel-lang/phel-lang)
+</content>
+</invoke>

@@ -19,14 +19,10 @@ If formatting fails, run `composer format` to fix it.
 
 ## Pull requests
 
-1. Branch off `main`.
-2. Keep changes small and focused.
-3. Add or update a test in `tests/` for any behaviour change.
-4. Use [Conventional Commits](https://www.conventionalcommits.org/) for messages
+1. Branch off `main`; keep changes small and focused.
+2. Add or update a test in `tests/` for any behaviour change.
+3. Use [Conventional Commits](https://www.conventionalcommits.org/)
    (`feat:`, `fix:`, `docs:`, `ci:`, `build:`, `chore:`, `ref:`).
-5. Open the PR — the [template](.github/PULL_REQUEST_TEMPLATE.md) and CI will
-   guide the rest.
+4. Open the PR — the [template](.github/PULL_REQUEST_TEMPLATE.md) and CI guide the rest.
 
-## Project layout
-
-See the [Project layout](README.md#project-layout) section in the README.
+See [Project layout](README.md#project-layout) in the README for structure.
