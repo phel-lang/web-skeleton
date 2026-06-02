@@ -8,11 +8,15 @@
     (is (= 200 (:status res)))
     (is (= "text/html; charset=utf-8" (get-in res [:headers :content-type])))))
 
-(deftest ping-handler-returns-json
-  (let [res  (routes/ping-handler {})
+(deftest ping-handler-returns-json-on-get
+  (let [res  (routes/ping-handler {:method "GET"})
         body (json/decode (:body res))]
     (is (= 200 (:status res)))
     (is (= "pong" (:message body)))))
+
+(deftest ping-handler-rejects-unknown-method
+  (let [res (routes/ping-handler {:method "DELETE"})]
+    (is (= 405 (:status res)))))
 
 (deftest greet-handler-uses-path-param
   (let [req {:attributes {:match {:path-params {:name "Phel"}}}}
@@ -23,6 +27,17 @@
 (deftest greet-handler-defaults-to-world
   (let [res (routes/greet-handler {})]
     (is (= "Hello, world!" (:greeting (json/decode (:body res)))))))
+
+(deftest greet-handler-rejects-too-long-name
+  (let [long-name (apply str (repeat 60 "x"))
+        req       {:attributes {:match {:path-params {:name long-name}}}}
+        res       (routes/greet-handler req)]
+    (is (= 400 (:status res)))))
+
+(deftest greet-post-handler-rejects-empty-body
+  ;; No request body in the test environment -> schema validation fails.
+  (let [res (routes/greet-post-handler {})]
+    (is (= 400 (:status res)))))
 
 (deftest not-found-handler-returns-404
   (let [res (routes/not-found-handler {})]

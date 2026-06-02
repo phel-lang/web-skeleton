@@ -1,8 +1,11 @@
 (ns web-skeleton.controller.routes
   (:require web-skeleton.view.main :refer [index-html])
   (:require web-skeleton.module.greet :as g)
+  (:require web-skeleton.module.schema :as schema)
   (:require phel.http :as h)
-  (:require phel.json :as json))
+  (:require phel.json :as json)
+  (:require phel.match :refer [match])
+  (:require phel.schema :as sc))
 
 (defn- html-response [status body]
   (h/response-from-map
@@ -16,15 +19,53 @@
     :headers {:content-type "application/json"}
     :body    (json/encode data)}))
 
+(defn- bad-request [message]
+  (json-response 400 {:error message}))
+
+(defn- conform-or-error
+  "Conforms `data` against `schema` (coercing). Returns `[:ok value]` on
+  success or `[:error human-readable-message]` on failure."
+  [schema data]
+  (let [result (sc/conform schema data)]
+    (if (= result sc/invalid-marker)
+      [:error (sc/human-readable-explain (sc/explain schema data))]
+      [:ok result])))
+
+(defn- json-body
+  "Reads and decodes a JSON request body from the raw input stream.
+  Returns an empty map when the body is empty or malformed."
+  [_req]
+  (let [raw (php/file_get_contents "php://input")]
+    (if (and (string? raw) (not (php/empty raw)))
+      (try (json/decode raw) (catch \Throwable _ {}))
+      {})))
+
 (defn index-handler [_req]
   (html-response 200 index-html))
 
-(defn ping-handler [_req]
-  (json-response 200 {:message "pong" :ts (php/time)}))
+(defn ping-handler [req]
+  ;; Pattern-match on the HTTP method instead of nested conds.
+  (match [(:method req)]
+         ["POST"] (json-response 200 {:message "pong" :echo (json-body req) :ts (php/time)})
+         ["GET"]  (json-response 200 {:message "pong" :ts (php/time)})
+         :else    (json-response 405 {:error "method not allowed"})))
 
-(defn greet-handler [req]
-  (let [name (get-in req [:attributes :match :path-params :name] "world")]
-    (json-response 200 {:greeting (g/greet name)})))
+(defn greet-handler
+  "GET /greet/{name} — validates the path param against a schema before use."
+  [req]
+  (let [name            (get-in req [:attributes :match :path-params :name] "world")
+        [status result] (conform-or-error schema/greet-params {:name name})]
+    (if (= status :ok)
+      (json-response 200 {:greeting (g/greet (:name result))})
+      (bad-request result))))
+
+(defn greet-post-handler
+  "POST /greet — reads a JSON body `{\"name\": \"...\"}`, validates, responds."
+  [req]
+  (let [[status result] (conform-or-error schema/greet-params (json-body req))]
+    (if (= status :ok)
+      (json-response 200 {:greeting (g/greet (:name result))})
+      (bad-request result))))
 
 (defn not-found-handler [_req]
   (html-response 404 "<h1>404</h1><p>Page not found.</p>"))

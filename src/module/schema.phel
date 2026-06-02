@@ -1,0 +1,8 @@
+(ns web-skeleton.module.schema)
+
+;; Request schemas as plain Malli-style vectors. Validate them with phel.schema
+;; directly: (sc/conform schema value) coerces and returns the value or the
+;; invalid marker; (sc/explain schema value) explains a failure.
+(def greet-params
+  [:map
+   [:name [:and :string [:re "/^.{1,50}$/"]]]])

@@ -12,7 +12,9 @@
                :get  {:handler routes/ping-handler}
                :post {:handler routes/ping-handler}}]
      ["/greet/{name}" {:name ::greet
-                       :get  {:handler routes/greet-handler}}]])
+                       :get  {:handler routes/greet-handler}}]
+     ["/greet" {:name ::greet-post
+                :post {:handler routes/greet-post-handler}}]])
    {:middleware [mw/wrap-logger mw/wrap-server-header]
     :not-found  routes/not-found-handler}))
 

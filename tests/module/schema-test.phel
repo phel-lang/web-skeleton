@@ -1,0 +1,20 @@
+(ns web-skeleton-tests.module.schema-test
+  (:require web-skeleton.module.schema :as schema)
+  (:require phel.schema :as sc)
+  (:require phel.test :refer [deftest is]))
+
+(deftest valid-name-conforms
+  (let [result (sc/conform schema/greet-params {:name "Phel"})]
+    (is (not (= result sc/invalid-marker)))
+    (is (= "Phel" (:name result)))))
+
+(deftest missing-name-is-invalid
+  (is (= sc/invalid-marker (sc/conform schema/greet-params {}))))
+
+(deftest too-long-name-is-invalid
+  (let [long-name (apply str (repeat 60 "x"))]
+    (is (= sc/invalid-marker (sc/conform schema/greet-params {:name long-name})))))
+
+(deftest validate-matches-conform
+  (is (sc/validate schema/greet-params {:name "ok"}))
+  (is (not (sc/validate schema/greet-params {:name ""}))))
