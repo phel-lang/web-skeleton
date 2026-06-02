@@ -3,6 +3,7 @@
   (:require web-skeleton.module.greet :as g)
   (:require web-skeleton.module.schema :as schema)
   (:require web-skeleton.http.response :as resp)
+  (:require phel.http :as h)
   (:require phel.schema :as sc))
 
 (defn- conform-or-error
@@ -24,7 +25,7 @@
       (resp/bad-request payload))))
 
 (defn index-handler [_req]
-  (resp/html 200 index-html))
+  (h/html-response 200 index-html))
 
 ;; One handler per HTTP method. The router dispatches on method from the route
 ;; table (:get / :post) and answers 405 itself for anything else — no manual
@@ -52,7 +53,7 @@
   (resp/not-found "<h1>404</h1><p>Page not found.</p>"))
 
 (defn method-not-allowed-handler [_req]
-  (resp/json 405 {:error "method not allowed"}))
+  (h/json-response 405 {:error "method not allowed"}))
 
 ;; Handlers are plain `request -> response` functions — poke them directly in
 ;; the REPL, no router or HTTP server needed.

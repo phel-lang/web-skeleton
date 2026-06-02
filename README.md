@@ -41,7 +41,7 @@ src/
   router.phel            ; route table (as data) + wired app handler + middleware
   config.phel            ; env-resolved configuration map
   middleware.phel        ; exception → 500, logger, server-header middleware
-  http/response.phel     ; reusable response builders (html/json/ok/bad-request/not-found)
+  http/response.phel     ; semantic helpers (ok/bad-request/not-found) over phel.http
   controller/routes.phel ; request handlers (one per method, body parsing, validation)
   module/greet.phel      ; pure domain code
   module/schema.phel     ; request schemas (phel.schema, Malli-style vectors)
@@ -136,8 +136,9 @@ options for global `:middleware`, a `:not-found` handler,
 ### Add your own route
 
 1. Write a handler in `src/controller/routes.phel` — a `request -> response`
-   function. Use the builders in `web-skeleton.http.response` (`resp/ok`,
-   `resp/json`, `resp/html`, `resp/bad-request`, `resp/not-found`):
+   function. Use the semantic helpers in `web-skeleton.http.response`
+   (`resp/ok`, `resp/bad-request`, `resp/not-found`), or `phel.http`'s
+   `h/json-response` / `h/html-response` directly for an explicit status:
 
    ```phel
    (defn time-handler [_req]
@@ -167,7 +168,7 @@ first to catch anything the inner handlers throw and answer a JSON `500`:
     (handler request)
     (catch \Throwable e
       (php/error_log (str "[err] " (php/-> e (getMessage))))
-      (resp/json 500 {:error "internal server error"}))))
+      (h/json-response 500 {:error "internal server error"}))))
 
 (defn wrap-server-header [handler request]
   (let [response (handler request)]

@@ -246,12 +246,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phel-lang/phel-lang.git",
-                "reference": "5f0ccf492156a1f0fdbb40b348ba7b26af63b7b2"
+                "reference": "3f5aa25d87d08916687414336d8d595db9cea192"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phel-lang/phel-lang/zipball/5f0ccf492156a1f0fdbb40b348ba7b26af63b7b2",
-                "reference": "5f0ccf492156a1f0fdbb40b348ba7b26af63b7b2",
+                "url": "https://api.github.com/repos/phel-lang/phel-lang/zipball/3f5aa25d87d08916687414336d8d595db9cea192",
+                "reference": "3f5aa25d87d08916687414336d8d595db9cea192",
                 "shasum": ""
             },
             "require": {
@@ -319,7 +319,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2026-06-02T12:24:36+00:00"
+            "time": "2026-06-02T14:06:10+00:00"
         },
         {
             "name": "psr/container",
