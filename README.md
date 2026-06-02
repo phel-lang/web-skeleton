@@ -23,8 +23,9 @@ Then open one of the sample routes:
 | ----------------- | ------------------------------------------------------------ |
 | `GET /`           | HTML page rendered with `phel.html`                          |
 | `GET /ping`       | JSON response (`phel.json`)                                  |
-| `POST /ping`      | Same handler dispatched on a different HTTP method           |
-| `GET /greet/:name`| Path parameter extracted from the URL                        |
+| `POST /ping`      | `phel.match` on the HTTP method; echoes the JSON body        |
+| `GET /greet/:name`| Path parameter validated with `phel.schema`                  |
+| `POST /greet`     | JSON body parsed + schema-validated (`{"name": "..."}`)      |
 | `GET /nope`       | Custom 404 handler                                           |
 
 ## Project layout
@@ -33,12 +34,14 @@ Then open one of the sample routes:
 src/
   app.phel               ; ns web-skeleton.app — wires the router + middleware
   middleware.phel        ; logger + server-header middleware examples
-  controller/routes.phel ; request handlers (HTML/JSON responses)
+  controller/routes.phel ; request handlers (HTML/JSON, body parsing, validation)
   module/greet.phel      ; pure domain code
+  module/schema.phel     ; phel.schema request schemas + validation helpers
   view/main.phel         ; HTML view built with phel.html
 tests/
   controller/routes-test.phel
   module/greet-test.phel
+  module/schema-test.phel
 public/
   index.php              ; entry point — serves compiled out/ if present
 phel-config.php          ; Phel build / format / export config
@@ -51,10 +54,40 @@ Phel namespaces use the modern dot separator (e.g. `web-skeleton.controller.rout
 ```bash
 composer run:dev   # dev server, recompiles every request (no out/ dir)
 composer run:prod  # builds once and runs the compiled PHP
-composer build     # AOT-compile src/ into out/
-composer test      # run phel tests
-composer format    # format src/ and tests/
-composer repl      # interactive Phel REPL
+composer build         # AOT-compile src/ into out/
+composer test          # run phel tests
+composer format        # format src/ and tests/
+composer format:check  # fail if anything is unformatted (used in CI)
+composer repl          # interactive Phel REPL
+```
+
+## Request validation (`phel.schema`)
+
+Schemas are plain Malli-style vectors. Define them once, then validate or
+coerce request data at the edge of a handler:
+
+```phel
+(def greet-params
+  [:map [:name [:and :string [:re "/^.{1,50}$/"]]]])
+
+;; in a handler
+(let [result (schema/conform greet-params {:name name})]
+  (if (schema/invalid? result)
+    (bad-request (schema/explain-human greet-params {:name name}))
+    (ok (:name result))))
+```
+
+`phel.schema` also offers `validate`, `coerce`, `generate` (test data), and
+`instrument!` for runtime function-contract checks.
+
+## Reading request bodies
+
+`phel.http` exposes form fields on `:parsed-body` (`$_POST`) and query string on
+`:query-params` (`$_GET`). For JSON APIs, read the raw stream — see
+`json-body` in `controller/routes.phel`:
+
+```phel
+(json/decode (php/file_get_contents "php://input"))
 ```
 
 ## Routing
@@ -100,10 +133,19 @@ composer test
 
 ## Docker
 
+Development (mounts the source, recompiles per request):
+
 ```bash
 docker compose up -d --build
 docker exec -ti -u dev phel_web_skeleton bash
 composer install
+```
+
+Production (multi-stage build → slim runtime serving compiled `out/`):
+
+```bash
+docker build -f build/Dockerfile.prod -t phel-web-skeleton .
+docker run --rm -p 8080:8080 phel-web-skeleton
 ```
 
 ## Learn more
