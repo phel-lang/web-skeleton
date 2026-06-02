@@ -1,0 +1,35 @@
+(ns web-skeleton.router
+  (:require web-skeleton.controller.routes :as ctrl)
+  (:require web-skeleton.middleware :as mw)
+  (:require phel.http :as h)
+  (:require phel.router :as r))
+
+;; The route table is a plain value, separate from the wiring. Keeping it as
+;; data means it can be inspected, counted, or tested without standing up the
+;; whole handler — see tests/router-test.phel.
+(def routes
+  [["/" {:handler ctrl/index-handler}]
+   ["/ping" {:name ::ping
+             :get  {:handler ctrl/ping-get-handler}
+             :post {:handler ctrl/ping-post-handler}}]
+   ["/greet/{name}" {:name ::greet
+                     :get  {:handler ctrl/greet-handler}}]
+   ["/greet" {:name ::greet-post
+              :post {:handler ctrl/greet-post-handler}}]])
+
+;; The router answers 404/405 itself via :not-found / :method-not-allowed.
+(def app
+  (r/handler
+   (r/router routes)
+   {:middleware         [mw/wrap-exception mw/wrap-logger mw/wrap-server-header]
+    :not-found          ctrl/not-found-handler
+    :method-not-allowed ctrl/method-not-allowed-handler}))
+
+;; Drive the whole app from the REPL without an HTTP server. Build a request
+;; with `request-from-map`, run it through `app`, inspect the response map.
+;; `composer repl`, then evaluate forms below.
+(comment
+ (app (h/request-from-map {:method "GET" :uri "http://localhost/ping"}))
+ (app (h/request-from-map {:method "DELETE" :uri "http://localhost/ping"})) ; => 405
+ (app (h/request-from-map {:method "GET" :uri "http://localhost/nope"}))    ; => 404
+ (count routes))

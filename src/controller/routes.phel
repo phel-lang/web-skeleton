@@ -2,25 +2,8 @@
   (:require web-skeleton.view.main :refer [index-html])
   (:require web-skeleton.module.greet :as g)
   (:require web-skeleton.module.schema :as schema)
-  (:require phel.http :as h)
-  (:require phel.json :as json)
-  (:require phel.match :refer [match])
+  (:require web-skeleton.http.response :as resp)
   (:require phel.schema :as sc))
-
-(defn- html-response [status body]
-  (h/response-from-map
-   {:status  status
-    :headers {:content-type "text/html; charset=utf-8"}
-    :body    body}))
-
-(defn- json-response [status data]
-  (h/response-from-map
-   {:status  status
-    :headers {:content-type "application/json"}
-    :body    (json/encode data)}))
-
-(defn- bad-request [message]
-  (json-response 400 {:error message}))
 
 (defn- conform-or-error
   "Conforms `data` against `schema` (coercing). Returns `[:ok value]` on
@@ -37,19 +20,22 @@
   [params]
   (let [[status payload] (conform-or-error schema/greet-params params)]
     (if (= status :ok)
-      (json-response 200 {:greeting (g/greet (:name payload))})
-      (bad-request payload))))
+      (resp/ok {:greeting (g/greet (:name payload))})
+      (resp/bad-request payload))))
 
 (defn index-handler [_req]
-  (html-response 200 index-html))
+  (resp/html 200 index-html))
 
-(defn ping-handler [req]
-  ;; Pattern-match on the HTTP method instead of nested conds. The JSON body is
-  ;; decoded by phel.http into :parsed-body, so there is no manual php://input read.
-  (match [(:method req)]
-         ["POST"] (json-response 200 {:message "pong" :echo (or (:parsed-body req) {}) :ts (php/time)})
-         ["GET"]  (json-response 200 {:message "pong" :ts (php/time)})
-         :else    (json-response 405 {:error "method not allowed"})))
+;; One handler per HTTP method. The router dispatches on method from the route
+;; table (:get / :post) and answers 405 itself for anything else — no manual
+;; method matching in the handler.
+
+(defn ping-get-handler [_req]
+  (resp/ok {:message "pong" :ts (php/time)}))
+
+(defn ping-post-handler [req]
+  ;; The JSON body is decoded by phel.http into :parsed-body — no php://input read.
+  (resp/ok {:message "pong" :echo (or (:parsed-body req) {}) :ts (php/time)}))
 
 (defn greet-handler
   "GET /greet/{name} — validates the path param against a schema before use."
@@ -63,4 +49,15 @@
   (greet-response (or (:parsed-body req) {})))
 
 (defn not-found-handler [_req]
-  (html-response 404 "<h1>404</h1><p>Page not found.</p>"))
+  (resp/not-found "<h1>404</h1><p>Page not found.</p>"))
+
+(defn method-not-allowed-handler [_req]
+  (resp/json 405 {:error "method not allowed"}))
+
+;; Handlers are plain `request -> response` functions — poke them directly in
+;; the REPL, no router or HTTP server needed.
+(comment
+ (ping-get-handler {})
+ (greet-handler {:attributes {:match {:path-params {:name "Phel"}}}})
+ (greet-post-handler {:parsed-body {:name "Phel"}})
+ (greet-post-handler {:parsed-body {:name ""}})) ; => 400

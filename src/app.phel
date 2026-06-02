@@ -1,22 +1,9 @@
 (ns web-skeleton.app
-  (:require web-skeleton.controller.routes :as routes)
-  (:require web-skeleton.middleware :as mw)
-  (:require phel.router :as r)
+  (:require web-skeleton.router :as router)
   (:require phel.http :as h))
 
-(def app
-  (r/handler
-   (r/router
-    [["/" {:handler routes/index-handler}]
-     ["/ping" {:name ::ping
-               :get  {:handler routes/ping-handler}
-               :post {:handler routes/ping-handler}}]
-     ["/greet/{name}" {:name ::greet
-                       :get  {:handler routes/greet-handler}}]
-     ["/greet" {:name ::greet-post
-                :post {:handler routes/greet-post-handler}}]])
-   {:middleware [mw/wrap-logger mw/wrap-server-header]
-    :not-found  routes/not-found-handler}))
-
+;; Entry point: build the request from PHP globals, run it through the app
+;; handler, emit the response. The route table and wiring live in
+;; web-skeleton.router; everything here is the IO edge.
 (when-not *build-mode*
-  (h/emit-response (app (h/request-from-globals))))
+  (h/emit-response (router/app (h/request-from-globals))))

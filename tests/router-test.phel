@@ -1,0 +1,24 @@
+(ns web-skeleton-tests.router-test
+  (:require web-skeleton.router :as router)
+  (:require phel.http :as h)
+  (:require phel.json :as json)
+  (:require phel.test :refer [deftest is]))
+
+(defn- request [method path]
+  (router/app (h/request-from-map {:method method :uri (str "http://localhost" path)})))
+
+(deftest route-table-is-plain-data
+  (is (= 4 (count router/routes))))
+
+(deftest get-ping-routes-to-handler
+  (let [res  (request "GET" "/ping")
+        body (json/decode (:body res))]
+    (is (= 200 (:status res)))
+    (is (= "pong" (:message body)))))
+
+(deftest unknown-path-returns-404
+  (is (= 404 (:status (request "GET" "/nope")))))
+
+(deftest wrong-method-returns-405
+  ;; The router rejects unsupported methods — handlers never see them.
+  (is (= 405 (:status (request "DELETE" "/ping")))))

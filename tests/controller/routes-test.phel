@@ -1,61 +1,67 @@
 (ns web-skeleton-tests.controller.routes-test
   (:require web-skeleton.controller.routes :as routes)
+  (:require phel.http :as h)
   (:require phel.json :as json)
   (:require phel.test :refer [deftest is]))
 
+;; Build real request structs with phel.http's own constructor instead of bare
+;; maps, so handlers are exercised against the shape they get in production.
+
+(defn- path-param-request
+  "A request carrying a matched `{name}` path param, as the router would set it."
+  [name]
+  (h/request-from-map {:attributes {:match {:path-params {:name name}}}}))
+
+(defn- json-body-request
+  "A request whose JSON body has already been parsed into `:parsed-body`."
+  [body]
+  (h/request-from-map {:parsed-body body}))
+
+(def- long-name (apply str (repeat 60 "x")))
+
 (deftest index-handler-returns-html
-  (let [res (routes/index-handler {})]
+  (let [res (routes/index-handler (h/request-from-map {}))]
     (is (= 200 (:status res)))
     (is (= "text/html; charset=utf-8" (get-in res [:headers :content-type])))))
 
-(deftest ping-handler-returns-json-on-get
-  (let [res  (routes/ping-handler {:method "GET"})
+(deftest ping-get-handler-returns-json
+  (let [res  (routes/ping-get-handler (h/request-from-map {}))
         body (json/decode (:body res))]
     (is (= 200 (:status res)))
     (is (= "pong" (:message body)))))
 
-(deftest ping-handler-rejects-unknown-method
-  (let [res (routes/ping-handler {:method "DELETE"})]
-    (is (= 405 (:status res)))))
-
-(deftest greet-handler-uses-path-param
-  (let [req {:attributes {:match {:path-params {:name "Phel"}}}}
-        res (routes/greet-handler req)]
-    (is (= 200 (:status res)))
-    (is (= "Hello, Phel!" (:greeting (json/decode (:body res)))))))
-
-(deftest greet-handler-defaults-to-world
-  (let [res (routes/greet-handler {})]
-    (is (= "Hello, world!" (:greeting (json/decode (:body res)))))))
-
-(deftest greet-handler-rejects-too-long-name
-  (let [long-name (apply str (repeat 60 "x"))
-        req       {:attributes {:match {:path-params {:name long-name}}}}
-        res       (routes/greet-handler req)]
-    (is (= 400 (:status res)))))
-
-(deftest greet-post-handler-rejects-empty-body
-  ;; No request body -> phel.http leaves :parsed-body nil -> validation fails.
-  (let [res (routes/greet-post-handler {})]
-    (is (= 400 (:status res)))))
-
-(deftest greet-post-handler-greets-from-parsed-body
-  ;; phel.http decodes the JSON body into :parsed-body; the handler just reads it.
-  (let [res (routes/greet-post-handler {:parsed-body {:name "Phel"}})]
-    (is (= 200 (:status res)))
-    (is (= "Hello, Phel!" (:greeting (json/decode (:body res)))))))
-
-(deftest greet-post-handler-rejects-too-long-name
-  (let [long-name (apply str (repeat 60 "x"))
-        res       (routes/greet-post-handler {:parsed-body {:name long-name}})]
-    (is (= 400 (:status res)))))
-
-(deftest ping-handler-echoes-parsed-body-on-post
-  (let [res  (routes/ping-handler {:method "POST" :parsed-body {:hello "world"}})
+(deftest ping-post-handler-echoes-parsed-body
+  (let [res  (routes/ping-post-handler (json-body-request {:hello "world"}))
         body (json/decode (:body res))]
     (is (= 200 (:status res)))
     (is (= {:hello "world"} (:echo body)))))
 
+(deftest method-not-allowed-handler-returns-405
+  (is (= 405 (:status (routes/method-not-allowed-handler (h/request-from-map {}))))))
+
+(deftest greet-handler-uses-path-param
+  (let [res (routes/greet-handler (path-param-request "Phel"))]
+    (is (= 200 (:status res)))
+    (is (= "Hello, Phel!" (:greeting (json/decode (:body res)))))))
+
+(deftest greet-handler-defaults-to-world
+  (let [res (routes/greet-handler (h/request-from-map {}))]
+    (is (= "Hello, world!" (:greeting (json/decode (:body res)))))))
+
+(deftest greet-handler-rejects-too-long-name
+  (is (= 400 (:status (routes/greet-handler (path-param-request long-name))))))
+
+(deftest greet-post-handler-rejects-empty-body
+  ;; No request body -> phel.http leaves :parsed-body nil -> validation fails.
+  (is (= 400 (:status (routes/greet-post-handler (h/request-from-map {}))))))
+
+(deftest greet-post-handler-greets-from-parsed-body
+  (let [res (routes/greet-post-handler (json-body-request {:name "Phel"}))]
+    (is (= 200 (:status res)))
+    (is (= "Hello, Phel!" (:greeting (json/decode (:body res)))))))
+
+(deftest greet-post-handler-rejects-too-long-name
+  (is (= 400 (:status (routes/greet-post-handler (json-body-request {:name long-name}))))))
+
 (deftest not-found-handler-returns-404
-  (let [res (routes/not-found-handler {})]
-    (is (= 404 (:status res)))))
+  (is (= 404 (:status (routes/not-found-handler (h/request-from-map {}))))))

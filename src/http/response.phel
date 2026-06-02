@@ -1,0 +1,40 @@
+(ns web-skeleton.http.response
+  (:require phel.http :as h)
+  (:require phel.json :as j))
+
+;; Reusable response builders shared by every controller. `phel.http` already
+;; knows the reason phrase for each status (see `response-phrases`), so callers
+;; pass a status code and a value — never raw header maps.
+
+(defn html
+  "HTML response with `status` and `body`."
+  [status body]
+  (h/response-from-map
+   {:status  status
+    :headers {:content-type "text/html; charset=utf-8"}
+    :body    body}))
+
+(defn json
+  "JSON response with `status`; `data` is encoded."
+  [status data]
+  (h/response-from-map
+   {:status  status
+    :headers {:content-type "application/json"}
+    :body    (j/encode data)}))
+
+;; Semantic helpers — read as intent, not status numbers.
+
+(defn ok
+  "200 JSON response."
+  [data]
+  (json 200 data))
+
+(defn bad-request
+  "400 JSON error `{:error message}`."
+  [message]
+  (json 400 {:error message}))
+
+(defn not-found
+  "404 HTML response."
+  [body]
+  (html 404 body))

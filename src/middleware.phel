@@ -1,4 +1,17 @@
-(ns web-skeleton.middleware)
+(ns web-skeleton.middleware
+  (:require web-skeleton.config :as cfg)
+  (:require web-skeleton.http.response :as resp))
+
+(defn wrap-exception
+  "Outermost middleware: catches any uncaught error from an inner handler and
+  answers a JSON 500 instead of leaking a stack trace to the client. The cause
+  is logged server-side. Wire it first in the `:middleware` vector."
+  [handler request]
+  (try
+    (handler request)
+    (catch \Throwable e
+      (php/error_log (str "[err] " (php/-> e (getMessage))))
+      (resp/json 500 {:error "internal server error"}))))
 
 (defn wrap-logger
   "Middleware that prints `METHOD path` for every request before delegating."
@@ -12,4 +25,4 @@
   "Middleware that tags every response with a `Server` header."
   [handler request]
   (let [response (handler request)]
-    (update response :headers assoc :server "phel-web-skeleton")))
+    (update response :headers assoc :server (:server-header cfg/config))))

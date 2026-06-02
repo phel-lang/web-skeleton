@@ -1,0 +1,15 @@
+(ns web-skeleton.config)
+
+;; Single source of configuration, resolved once from the environment at load
+;; time. Code reaches for `config` instead of calling `getenv` ad hoc, so every
+;; tunable lives in one inspectable map.
+
+(defn- env
+  "Reads env var `key`, falling back to `default` when unset or empty."
+  [key default]
+  (let [v (php/getenv key)]
+    (if (or (false? v) (= v "")) default v)))
+
+(def config
+  {:app-name      (env "APP_NAME" "phel-web-skeleton")
+   :server-header (env "SERVER_HEADER" "phel-web-skeleton")})

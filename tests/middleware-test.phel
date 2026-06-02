@@ -1,0 +1,20 @@
+(ns web-skeleton-tests.middleware-test
+  (:require web-skeleton.middleware :as mw)
+  (:require phel.json :as json)
+  (:require phel.test :refer [deftest is]))
+
+(deftest wrap-exception-catches-and-returns-500
+  (let [boom (fn [_req] (throw (php/new \Exception "boom")))
+        res  (mw/wrap-exception boom {})]
+    (is (= 500 (:status res)))
+    (is (= "internal server error" (:error (json/decode (:body res)))))))
+
+(deftest wrap-exception-passes-through-success
+  (let [inner (fn [_req] {:status 200})
+        res   (mw/wrap-exception inner {})]
+    (is (= 200 (:status res)))))
+
+(deftest wrap-server-header-tags-response
+  (let [inner (fn [_req] {:status 200 :headers {}})
+        res   (mw/wrap-server-header inner {})]
+    (is (= "phel-web-skeleton" (get-in res [:headers :server])))))

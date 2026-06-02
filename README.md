@@ -8,7 +8,7 @@ routed HTTP server, JSON + HTML responses, middleware, request validation, a
 404 handler, and a test suite — all in a handful of `.phel` files.
 
 **Batteries included:** `phel.router` · `phel.http` · `phel.html` · `phel.json`
-· `phel.schema` (validation) · `phel.match` · `phel.test` · CI · Docker.
+· `phel.schema` (validation) · `phel.test` · error-handling middleware · CI · Docker.
 
 ## Requirements
 
@@ -28,7 +28,7 @@ Then open one of the sample routes:
 | ----------------- | ------------------------------------------------------------ |
 | `GET /`           | HTML page rendered with `phel.html`                          |
 | `GET /ping`       | JSON response (`phel.json`)                                  |
-| `POST /ping`      | `phel.match` on the HTTP method; echoes the JSON body        |
+| `POST /ping`      | Per-method handler; echoes the parsed JSON body              |
 | `GET /greet/:name`| Path parameter validated with `phel.schema`                  |
 | `POST /greet`     | JSON body parsed + schema-validated (`{"name": "..."}`)      |
 | `GET /nope`       | Custom 404 handler                                           |
@@ -37,18 +37,23 @@ Then open one of the sample routes:
 
 ```
 src/
-  app.phel               ; ns web-skeleton.app — wires the router + middleware
-  middleware.phel        ; logger + server-header middleware examples
-  controller/routes.phel ; request handlers (HTML/JSON, body parsing, validation)
+  app.phel               ; ns web-skeleton.app — IO entry point (request in, response out)
+  router.phel            ; route table (as data) + wired app handler + middleware
+  config.phel            ; env-resolved configuration map
+  middleware.phel        ; exception → 500, logger, server-header middleware
+  http/response.phel     ; reusable response builders (html/json/ok/bad-request/not-found)
+  controller/routes.phel ; request handlers (one per method, body parsing, validation)
   module/greet.phel      ; pure domain code
   module/schema.phel     ; request schemas (phel.schema, Malli-style vectors)
   view/main.phel         ; HTML view built with phel.html
 tests/
+  router-test.phel       ; end-to-end routing (404 / 405 / dispatch)
+  middleware-test.phel
   controller/routes-test.phel
   module/greet-test.phel
   module/schema-test.phel
 public/
-  index.php              ; entry point — serves compiled out/ if present
+  index.php              ; web entry — serves compiled out/ if present
 phel-config.php          ; Phel build / format config
 ```
 
@@ -104,17 +109,21 @@ safe default and the schema reports the missing field.
 
 ## Routing
 
-Routes live in `src/app.phel` and use the built-in `phel.router`:
+The route table is a plain value in `src/router.phel`, kept separate from the
+wiring so it can be inspected and tested on its own:
 
 ```phel
-(r/router
- [["/" {:handler routes/index-handler}]
-  ["/ping" {:name ::ping
-            :get  {:handler routes/ping-handler}
-            :post {:handler routes/ping-handler}}]
-  ["/greet/{name}" {:name ::greet
-                    :get  {:handler routes/greet-handler}}]])
+(def routes
+  [["/" {:handler ctrl/index-handler}]
+   ["/ping" {:name ::ping
+             :get  {:handler ctrl/ping-get-handler}
+             :post {:handler ctrl/ping-post-handler}}]
+   ["/greet/{name}" {:name ::greet
+                     :get  {:handler ctrl/greet-handler}}]])
 ```
+
+Dispatch on the HTTP method belongs in the route data (`:get` / `:post`), not
+in the handler — the router answers `405` itself for unsupported methods.
 
 `r/handler` wraps the router into a `request -> response` function and accepts
 options for global `:middleware`, a `:not-found` handler,
@@ -127,17 +136,18 @@ options for global `:middleware`, a `:not-found` handler,
 ### Add your own route
 
 1. Write a handler in `src/controller/routes.phel` — a `request -> response`
-   function. Use `json-response` / `html-response` for the body:
+   function. Use the builders in `web-skeleton.http.response` (`resp/ok`,
+   `resp/json`, `resp/html`, `resp/bad-request`, `resp/not-found`):
 
    ```phel
    (defn time-handler [_req]
-     (json-response 200 {:now (php/time)}))
+     (resp/ok {:now (php/time)}))
    ```
 
-2. Register it in `src/app.phel`:
+2. Register it in the `routes` table in `src/router.phel`:
 
    ```phel
-   ["/time" {:name ::time :get {:handler routes/time-handler}}]
+   ["/time" {:name ::time :get {:handler ctrl/time-handler}}]
    ```
 
 3. Add a test in `tests/controller/routes-test.phel` and run `composer test`.
@@ -147,12 +157,21 @@ That's the whole loop: handler → route → test.
 ## Middleware
 
 Middleware is a 2-arg function `(fn [handler request] ...)`. Compose it via
-`:middleware` on `r/handler` (global) or on a route's `:middleware` key.
+`:middleware` on `r/handler` (global) or on a route's `:middleware` key. The
+first entry in the vector is the outermost wrapper, so `wrap-exception` goes
+first to catch anything the inner handlers throw and answer a JSON `500`:
 
 ```phel
+(defn wrap-exception [handler request]
+  (try
+    (handler request)
+    (catch \Throwable e
+      (php/error_log (str "[err] " (php/-> e (getMessage))))
+      (resp/json 500 {:error "internal server error"}))))
+
 (defn wrap-server-header [handler request]
   (let [response (handler request)]
-    (update response :headers assoc :server "phel-web-skeleton")))
+    (update response :headers assoc :server (:server-header cfg/config))))
 ```
 
 ## Tests
