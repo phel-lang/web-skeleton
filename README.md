@@ -41,7 +41,7 @@ src/
   middleware.phel        ; logger + server-header middleware examples
   controller/routes.phel ; request handlers (HTML/JSON, body parsing, validation)
   module/greet.phel      ; pure domain code
-  module/schema.phel     ; phel.schema request schemas + validation helpers
+  module/schema.phel     ; request schemas (phel.schema, Malli-style vectors)
   view/main.phel         ; HTML view built with phel.html
 tests/
   controller/routes-test.phel
@@ -174,6 +174,11 @@ Production (multi-stage build → slim runtime serving compiled `out/`):
 docker build -f build/Dockerfile.prod -t phel-web-skeleton .
 docker run --rm -p 8080:8080 phel-web-skeleton
 ```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Changes are tracked in
+[CHANGELOG.md](CHANGELOG.md).
 
 ## Learn more
 
