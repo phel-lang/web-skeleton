@@ -1,0 +1,17 @@
+.git/
+.github/
+.idea/
+.vscode/
+.phel/
+out/
+var/
+data/
+vendor/
+src/PhelGenerated/*
+!src/PhelGenerated/.gitkeep
+*.cache
+.phel-repl-history
+phel-config-local.php
+README.md
+LICENSE
+tests/

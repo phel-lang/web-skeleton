@@ -1,0 +1,28 @@
+# Multi-stage production image: build the Phel app, then ship a slim runtime.
+
+# ---- Stage 1: build ----
+FROM php:8.4-cli AS build
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+WORKDIR /app
+
+# Install dependencies first to leverage layer caching.
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-interaction --no-progress --prefer-dist
+
+# Copy sources and compile Phel to out/index.php.
+COPY . .
+RUN composer build
+
+# ---- Stage 2: runtime ----
+FROM php:8.4-cli AS runtime
+WORKDIR /app
+
+# Only the artifacts needed to serve.
+COPY --from=build /app/vendor ./vendor
+COPY --from=build /app/out ./out
+COPY --from=build /app/src/PhelGenerated ./src/PhelGenerated
+COPY --from=build /app/public ./public
+
+EXPOSE 8080
+# Use the compiled out/index.php (public/index.php loads it when present).
+CMD ["php", "-S", "0.0.0.0:8080", "-t", "public"]
