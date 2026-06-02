@@ -31,41 +31,36 @@
       [:error (sc/human-readable-explain (sc/explain schema data))]
       [:ok result])))
 
-(defn- json-body
-  "Reads and decodes a JSON request body from the raw input stream.
-  Returns an empty map when the body is empty or malformed."
-  [_req]
-  (let [raw (php/file_get_contents "php://input")]
-    (if (and (string? raw) (not (php/empty raw)))
-      (try (json/decode raw) (catch \Throwable _ {}))
-      {})))
+(defn- greet-response
+  "Validates `params` against the greet schema and answers with a greeting or
+  a 400. Shared by the path-param and JSON-body greet routes."
+  [params]
+  (let [[status payload] (conform-or-error schema/greet-params params)]
+    (if (= status :ok)
+      (json-response 200 {:greeting (g/greet (:name payload))})
+      (bad-request payload))))
 
 (defn index-handler [_req]
   (html-response 200 index-html))
 
 (defn ping-handler [req]
-  ;; Pattern-match on the HTTP method instead of nested conds.
+  ;; Pattern-match on the HTTP method instead of nested conds. The JSON body is
+  ;; decoded by phel.http into :parsed-body, so there is no manual php://input read.
   (match [(:method req)]
-         ["POST"] (json-response 200 {:message "pong" :echo (json-body req) :ts (php/time)})
+         ["POST"] (json-response 200 {:message "pong" :echo (or (:parsed-body req) {}) :ts (php/time)})
          ["GET"]  (json-response 200 {:message "pong" :ts (php/time)})
          :else    (json-response 405 {:error "method not allowed"})))
 
 (defn greet-handler
   "GET /greet/{name} — validates the path param against a schema before use."
   [req]
-  (let [name            (get-in req [:attributes :match :path-params :name] "world")
-        [status result] (conform-or-error schema/greet-params {:name name})]
-    (if (= status :ok)
-      (json-response 200 {:greeting (g/greet (:name result))})
-      (bad-request result))))
+  (greet-response {:name (get-in req [:attributes :match :path-params :name] "world")}))
 
 (defn greet-post-handler
-  "POST /greet — reads a JSON body `{\"name\": \"...\"}`, validates, responds."
+  "POST /greet — reads a JSON body `{\"name\": \"...\"}`, validates, responds.
+  phel.http already decoded the body into `:parsed-body`."
   [req]
-  (let [[status result] (conform-or-error schema/greet-params (json-body req))]
-    (if (= status :ok)
-      (json-response 200 {:greeting (g/greet (:name result))})
-      (bad-request result))))
+  (greet-response (or (:parsed-body req) {})))
 
 (defn not-found-handler [_req]
   (html-response 404 "<h1>404</h1><p>Page not found.</p>"))

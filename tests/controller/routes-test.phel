@@ -35,9 +35,26 @@
     (is (= 400 (:status res)))))
 
 (deftest greet-post-handler-rejects-empty-body
-  ;; No request body in the test environment -> schema validation fails.
+  ;; No request body -> phel.http leaves :parsed-body nil -> validation fails.
   (let [res (routes/greet-post-handler {})]
     (is (= 400 (:status res)))))
+
+(deftest greet-post-handler-greets-from-parsed-body
+  ;; phel.http decodes the JSON body into :parsed-body; the handler just reads it.
+  (let [res (routes/greet-post-handler {:parsed-body {:name "Phel"}})]
+    (is (= 200 (:status res)))
+    (is (= "Hello, Phel!" (:greeting (json/decode (:body res)))))))
+
+(deftest greet-post-handler-rejects-too-long-name
+  (let [long-name (apply str (repeat 60 "x"))
+        res       (routes/greet-post-handler {:parsed-body {:name long-name}})]
+    (is (= 400 (:status res)))))
+
+(deftest ping-handler-echoes-parsed-body-on-post
+  (let [res  (routes/ping-handler {:method "POST" :parsed-body {:hello "world"}})
+        body (json/decode (:body res))]
+    (is (= 200 (:status res)))
+    (is (= {:hello "world"} (:echo body)))))
 
 (deftest not-found-handler-returns-404
   (let [res (routes/not-found-handler {})]

@@ -12,11 +12,13 @@
   "type": "project",
   "require": {
     "php": ">=8.4",
-    "phel-lang/phel-lang": "^0.41"
+    "phel-lang/phel-lang": "dev-main"
   },
   "require-dev": {
     "symfony/var-dumper": "^7.3"
   },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
   "scripts": {
     "run:dev": [
       "Composer\\Config::disableProcessTimeout",
