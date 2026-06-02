@@ -89,13 +89,18 @@ request data at the edge of a handler with `phel.schema` directly —
 
 ## Reading request bodies
 
-`phel.http` exposes form fields on `:parsed-body` (`$_POST`) and query string on
-`:query-params` (`$_GET`). For JSON APIs, read the raw stream — see
-`json-body` in `controller/routes.phel`:
+`phel.http` decodes the request body into `:parsed-body` for you: form fields
+(`$_POST`) for `application/x-www-form-urlencoded` / `multipart/form-data`, and
+the decoded JSON for `application/json`. Query string lives on `:query-params`
+(`$_GET`). Handlers just read the map — no manual `php://input` plumbing:
 
 ```phel
-(json/decode (php/file_get_contents "php://input"))
+(defn greet-post-handler [req]
+  (greet-response (or (:parsed-body req) {})))
 ```
+
+`:parsed-body` is `nil` for an empty or malformed body, so `(or … {})` gives a
+safe default and the schema reports the missing field.
 
 ## Routing
 
