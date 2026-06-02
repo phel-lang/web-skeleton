@@ -1,9 +1,14 @@
 # Phel Web Skeleton
 
+[![CI](https://github.com/phel-lang/web-skeleton/actions/workflows/ci.yml/badge.svg)](https://github.com/phel-lang/web-skeleton/actions/workflows/ci.yml)
+
 [Phel](https://phel-lang.org/) is a functional Lisp that compiles to PHP. This
 skeleton is the fastest way to start a small web app written in Phel: a
-routed HTTP server, JSON + HTML responses, middleware, a 404 handler, and a
-test suite — all in a handful of `.phel` files.
+routed HTTP server, JSON + HTML responses, middleware, request validation, a
+404 handler, and a test suite — all in a handful of `.phel` files.
+
+**Batteries included:** `phel.router` · `phel.http` · `phel.html` · `phel.json`
+· `phel.schema` (validation) · `phel.match` · `phel.test` · CI · Docker.
 
 ## Requirements
 
@@ -44,7 +49,7 @@ tests/
   module/schema-test.phel
 public/
   index.php              ; entry point — serves compiled out/ if present
-phel-config.php          ; Phel build / format / export config
+phel-config.php          ; Phel build / format config
 ```
 
 Phel namespaces use the modern dot separator (e.g. `web-skeleton.controller.routes`).
@@ -52,28 +57,30 @@ Phel namespaces use the modern dot separator (e.g. `web-skeleton.controller.rout
 ## Commands
 
 ```bash
-composer run:dev   # dev server, recompiles every request (no out/ dir)
-composer run:prod  # builds once and runs the compiled PHP
+composer run:dev       # dev server, recompiles every request (no out/ dir)
+composer run:prod      # builds once and runs the compiled PHP
 composer build         # AOT-compile src/ into out/
 composer test          # run phel tests
 composer format        # format src/ and tests/
 composer format:check  # fail if anything is unformatted (used in CI)
+composer check         # format:check + test (run before pushing)
 composer repl          # interactive Phel REPL
 ```
 
 ## Request validation (`phel.schema`)
 
-Schemas are plain Malli-style vectors. Define them once, then validate or
-coerce request data at the edge of a handler:
+Schemas are plain Malli-style vectors, kept in `module/schema.phel`. Validate
+request data at the edge of a handler with `phel.schema` directly —
+`sc/conform` coerces and returns the value, or `sc/invalid-marker` on failure:
 
 ```phel
 (def greet-params
   [:map [:name [:and :string [:re "/^.{1,50}$/"]]]])
 
-;; in a handler
-(let [result (schema/conform greet-params {:name name})]
-  (if (schema/invalid? result)
-    (bad-request (schema/explain-human greet-params {:name name}))
+;; in a handler (see conform-or-error in controller/routes.phel)
+(let [result (sc/conform greet-params {:name name})]
+  (if (= result sc/invalid-marker)
+    (bad-request (sc/human-readable-explain (sc/explain greet-params {:name name})))
     (ok (:name result))))
 ```
 
@@ -111,6 +118,26 @@ options for global `:middleware`, a `:not-found` handler,
 > `r/compiled-router` is a faster, macro-expanded alternative — use it when
 > handlers are referenced by keyword/name (not as raw function values), since
 > the macro embeds the route table into the compiled code.
+
+### Add your own route
+
+1. Write a handler in `src/controller/routes.phel` — a `request -> response`
+   function. Use `json-response` / `html-response` for the body:
+
+   ```phel
+   (defn time-handler [_req]
+     (json-response 200 {:now (php/time)}))
+   ```
+
+2. Register it in `src/app.phel`:
+
+   ```phel
+   ["/time" {:name ::time :get {:handler routes/time-handler}}]
+   ```
+
+3. Add a test in `tests/controller/routes-test.phel` and run `composer test`.
+
+That's the whole loop: handler → route → test.
 
 ## Middleware
 
