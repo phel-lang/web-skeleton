@@ -9,3 +9,17 @@ vendor/
 *.cache
 .phel-repl-history
 phel-config-local.php
+
+# AI agent artifacts — tool-specific, generated locally with `phel agent-install`.
+# Kept out of the repo so the skeleton stays agent-agnostic; each dev installs
+# the adapters for whatever assistant they use.
+.agents/
+.claude/
+.codex/
+.cursor/
+.gemini/
+.github/copilot-instructions.md
+AGENTS.md
+GEMINI.md
+CONVENTIONS.md
+.aider.conf.yml

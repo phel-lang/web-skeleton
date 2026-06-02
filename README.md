@@ -183,6 +183,20 @@ Tests live in `tests/` and use `phel.test`:
 composer test
 ```
 
+## AI assistants
+
+The skeleton is agent-agnostic — no tool-specific files are committed. Generate
+the adapters for whatever assistant you use with Phel's installer:
+
+```bash
+vendor/bin/phel agent-install --auto   # only the agents already used in this project
+vendor/bin/phel agent-install claude   # or a specific one (claude, cursor, codex, gemini, copilot, aider)
+```
+
+It writes a neutral `.agents/` docs tree plus the per-tool adapter (e.g.
+`.claude/`, `AGENTS.md`). All of it is `.gitignore`d, so each dev installs
+their own; run `agent-install --check` after `composer update` to catch drift.
+
 ## Docker
 
 Development (mounts the source, recompiles per request):
