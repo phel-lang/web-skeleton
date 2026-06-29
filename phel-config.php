@@ -15,4 +15,7 @@ return (new PhelConfig())
         ->withMainPhelNamespace('web-skeleton.app')
         ->withMainPhpPath('out/index.php'))
     ->withIgnoreWhenBuilding(['local.phel'])
-    ->withNoCacheWhenBuilding(['web-skeleton.app']);
+    ->withNoCacheWhenBuilding(['web-skeleton.app'])
+    // Level 2 inlines core arithmetic/bit fns and rewrites self-recursive tail
+    // calls; drop to 0 to keep those nil-guard runtime checks during dev.
+    ->withOptimizationLevel(2);
