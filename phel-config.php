@@ -2,18 +2,14 @@
 
 declare(strict_types=1);
 
-use Phel\Config\PhelBuildConfig;
 use Phel\Config\PhelConfig;
+use Phel\Config\ProjectLayout;
 
-return (new PhelConfig())
-    ->withSrcDirs(['src'])
-    ->withTestDirs(['tests'])
-    ->withVendorDir('vendor')
-    ->withKeepGeneratedTempFiles(false)
-    ->withFormatDirs(['src', 'tests'])
-    ->withBuildConfig((new PhelBuildConfig())
-        ->withMainPhelNamespace('web-skeleton.app')
-        ->withMainPhpPath('out/index.php'))
+// `forProject(Flat)` sets the src/tests/format dirs for the standard layout;
+// see https://phel-lang.org/documentation/configuration/. Run `phel config`
+// to print the effective configuration.
+return PhelConfig::forProject(ProjectLayout::Flat)
+    ->withMainPhelNamespace('web-skeleton.app')
     ->withIgnoreWhenBuilding(['local.phel'])
     ->withNoCacheWhenBuilding(['web-skeleton.app'])
     // Level 2 inlines core arithmetic/bit fns and rewrites self-recursive tail
