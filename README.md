@@ -82,8 +82,9 @@ the router answers `405` itself. `r/handler` wraps the router into a
 `request -> response` function and accepts `:middleware`, `:not-found`,
 `:method-not-allowed`, and `:not-acceptable` options.
 
-> `r/compiled-router` is faster (macro-expanded) — use it when handlers are
-> referenced by keyword/name, since the macro embeds the route table.
+> The skeleton uses `r/compiled-router`, which precompiles the Symfony matcher
+> at macro-expansion (~3x faster matching). It needs a statically-known route
+> table; switch to `r/router` if you build routes from runtime values.
 
 **Add a route:** write a `request -> response` handler in
 `src/controller/routes.phel`, register it in `routes`, add a test. That's the loop.
