@@ -25,6 +25,10 @@ own versions.
 
 ### Changed
 
+- `phel-config.php` uses `PhelConfig::forProject(ProjectLayout::Flat)` instead
+  of the verbose builder, dropping the src/tests/vendor/format/temp lines now
+  covered by the layout preset; enabled `->withOptimizationLevel(2)`.
+- `app.phel` pipes the request through the handler with thread-first `->`.
 - Method dispatch moved from `phel.match` in the ping handler to the router's
   per-method route data; the router now answers `405` itself.
 - Controllers build responses via `phel.http`'s `json-response` /
