@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b0af3c68aa84e8703feca4088e145f0d",
+    "content-hash": "d1078229e73a05ddb98f20f75c53453b",
     "packages": [
         {
             "name": "amphp/amp",
@@ -242,16 +242,16 @@
         },
         {
             "name": "phel-lang/phel-lang",
-            "version": "dev-main",
+            "version": "v0.47.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phel-lang/phel-lang.git",
-                "reference": "a1a71234e1c88f4f1b21b861c113bd70f0d25ecd"
+                "reference": "d54751ad123f1d60e131c4c3d71d7091bbb0edfa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phel-lang/phel-lang/zipball/a1a71234e1c88f4f1b21b861c113bd70f0d25ecd",
-                "reference": "a1a71234e1c88f4f1b21b861c113bd70f0d25ecd",
+                "url": "https://api.github.com/repos/phel-lang/phel-lang/zipball/d54751ad123f1d60e131c4c3d71d7091bbb0edfa",
+                "reference": "d54751ad123f1d60e131c4c3d71d7091bbb0edfa",
                 "shasum": ""
             },
             "require": {
@@ -262,6 +262,7 @@
                 "symfony/routing": "^7.3|^8.0"
             },
             "require-dev": {
+                "brianium/paratest": "^7",
                 "ergebnis/composer-normalize": "^2.50",
                 "ext-readline": "*",
                 "friendsofphp/php-cs-fixer": "^3.94",
@@ -275,7 +276,6 @@
                 "symfony/var-dumper": "^7.4|^8.0",
                 "vimeo/psalm": "^6.16"
             },
-            "default-branch": true,
             "bin": [
                 "bin/phel"
             ],
@@ -313,7 +313,7 @@
             ],
             "support": {
                 "issues": "https://github.com/phel-lang/phel-lang/issues",
-                "source": "https://github.com/phel-lang/phel-lang/tree/main"
+                "source": "https://github.com/phel-lang/phel-lang/tree/v0.47.0"
             },
             "funding": [
                 {
@@ -321,7 +321,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2026-06-29T18:02:41+00:00"
+            "time": "2026-07-01T20:08:58+00:00"
         },
         {
             "name": "psr/container",
@@ -1383,9 +1383,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "phel-lang/phel-lang": 20
-    },
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
