@@ -12,7 +12,7 @@
   "type": "project",
   "require": {
     "php": ">=8.4",
-    "phel-lang/phel-lang": "^0.49"
+    "phel-lang/phel-lang": "^0.50"
   },
   "require-dev": {
     "symfony/var-dumper": "^7.3"
