@@ -10,7 +10,7 @@
   (try
     (handler request)
     (catch \Throwable e
-      (php/error_log (str "[err] " (php/-> e (getMessage))))
+      (php/error_log (str "[err] " (.getMessage e)))
       (h/json-response 500 {:error "internal server error"}))))
 
 (defn wrap-logger
