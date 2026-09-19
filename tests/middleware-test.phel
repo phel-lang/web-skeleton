@@ -4,7 +4,7 @@
   (:require phel.test :refer [deftest is]))
 
 (deftest wrap-exception-catches-and-returns-500
-  (let [boom (fn [_req] (throw (php/new \Exception "boom")))
+  (let [boom (fn [_req] (throw (new \Exception "boom")))
         res  (mw/wrap-exception boom {})]
     (is (= 500 (:status res)))
     (is (= "internal server error" (:error (json/decode (:body res)))))))
