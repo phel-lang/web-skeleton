@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1fcb9bedc59871b476c196fab611ea62",
+    "content-hash": "f2f7b063fb2582960a132e24ba9d3d9a",
     "packages": [
         {
             "name": "amphp/amp",
@@ -275,40 +275,40 @@
         },
         {
             "name": "phel-lang/phel-lang",
-            "version": "v0.52.0",
+            "version": "v0.53.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phel-lang/phel-lang.git",
-                "reference": "376ccab6ec6eb9cf8c6aef360d3b831b61c32242"
+                "reference": "de2722e2075442703d3d7a55f8c2ccfd68f47d93"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phel-lang/phel-lang/zipball/376ccab6ec6eb9cf8c6aef360d3b831b61c32242",
-                "reference": "376ccab6ec6eb9cf8c6aef360d3b831b61c32242",
+                "url": "https://api.github.com/repos/phel-lang/phel-lang/zipball/de2722e2075442703d3d7a55f8c2ccfd68f47d93",
+                "reference": "de2722e2075442703d3d7a55f8c2ccfd68f47d93",
                 "shasum": ""
             },
             "require": {
                 "amphp/amp": "^3.1",
                 "gacela-project/gacela": "^2.0",
-                "php": ">=8.4",
+                "php": ">=8.5",
                 "symfony/console": "^7.3|^8.0",
                 "symfony/polyfill-mbstring": "^1.30",
                 "symfony/routing": "^7.3|^8.0"
             },
             "require-dev": {
                 "brianium/paratest": "^7",
-                "ergebnis/composer-normalize": "^2.50",
+                "ergebnis/composer-normalize": "^2.53",
                 "ext-readline": "*",
-                "friendsofphp/php-cs-fixer": "^3.94",
-                "infection/infection": "^0.35",
-                "phpbench/phpbench": "^1.6",
-                "phpstan/phpstan": "^2.1",
+                "friendsofphp/php-cs-fixer": "^3.95",
+                "infection/infection": "^0.35.4",
+                "phpbench/phpbench": "^1.7",
+                "phpstan/phpstan": "^2.2",
                 "phpstan/phpstan-deprecation-rules": "^2.0",
                 "phpstan/phpstan-phpunit": "^2.0",
                 "phpunit/phpunit": "^11.0|^12.0|^13.0",
-                "psalm/plugin-phpunit": "^0.19|^0.20",
-                "rector/rector": "^2.3",
-                "vimeo/psalm": "^6.16"
+                "psalm/plugin-phpunit": "^0.19.7",
+                "rector/rector": "^2.6.7",
+                "vimeo/psalm": "^6.18"
             },
             "bin": [
                 "bin/phel"
@@ -347,7 +347,7 @@
             ],
             "support": {
                 "issues": "https://github.com/phel-lang/phel-lang/issues",
-                "source": "https://github.com/phel-lang/phel-lang/tree/v0.52.0"
+                "source": "https://github.com/phel-lang/phel-lang/tree/v0.53.0"
             },
             "funding": [
                 {
@@ -355,7 +355,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2026-09-19T14:55:39+00:00"
+            "time": "2026-09-24T09:12:02+00:00"
         },
         {
             "name": "psr/container",
