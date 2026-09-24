@@ -11,8 +11,8 @@
   "license": "MIT",
   "type": "project",
   "require": {
-    "php": ">=8.4",
-    "phel-lang/phel-lang": "^0.52"
+    "php": ">=8.5",
+    "phel-lang/phel-lang": "^0.53"
   },
   "require-dev": {
     "symfony/var-dumper": "^7.3"

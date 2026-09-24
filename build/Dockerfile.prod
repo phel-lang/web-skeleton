@@ -1,7 +1,11 @@
 # Multi-stage production image: build the Phel app, then ship a slim runtime.
 
 # ---- Stage 1: build ----
-FROM php:8.4-cli AS build
+FROM php:8.5-cli AS build
+# Composer needs unzip to extract dist archives; the base image has neither it nor ext-zip.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends unzip \
+    && rm -rf /var/lib/apt/lists/*
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /app
 
@@ -14,13 +18,12 @@ COPY . .
 RUN composer build
 
 # ---- Stage 2: runtime ----
-FROM php:8.4-cli AS runtime
+FROM php:8.5-cli AS runtime
 WORKDIR /app
 
 # Only the artifacts needed to serve.
 COPY --from=build /app/vendor ./vendor
 COPY --from=build /app/out ./out
-COPY --from=build /app/src/PhelGenerated ./src/PhelGenerated
 COPY --from=build /app/public ./public
 
 EXPOSE 8080
