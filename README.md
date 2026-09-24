@@ -12,7 +12,7 @@ JSON + HTML responses, middleware, request validation, a 404 handler, and tests
 
 ## Quick start
 
-Requires PHP **>= 8.4** and [Composer](https://getcomposer.org/).
+Requires PHP **>= 8.5** and [Composer](https://getcomposer.org/).
 
 ```bash
 composer install
