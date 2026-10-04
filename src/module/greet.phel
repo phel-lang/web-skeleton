@@ -2,9 +2,9 @@
   (:require phel.string :as s))
 
 (defn greet
-  "Returns a friendly greeting for `name`."
-  [name]
-  (str "Hello, " name "!"))
+  "Returns a friendly greeting for `who`."
+  [who]
+  (str "Hello, " who "!"))
 
 (defn greet-many
   "Greets every name in a collection, joined by `, `."

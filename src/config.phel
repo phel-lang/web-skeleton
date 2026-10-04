@@ -5,9 +5,9 @@
 ;; tunable lives in one inspectable map.
 
 (defn- env
-  "Reads env var `key`, falling back to `default` when unset or empty."
-  [key default]
-  (let [v (php/getenv key)]
+  "Reads env var `k`, falling back to `default` when unset or empty."
+  [k default]
+  (let [v (php/getenv k)]
     (if (or (false? v) (= v "")) default v)))
 
 (def config
