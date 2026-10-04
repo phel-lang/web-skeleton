@@ -9,8 +9,8 @@
 
 (defn- path-param-request
   "A request carrying a matched `{name}` path param, as the router would set it."
-  [name]
-  (h/request-from-map {:attributes {:match {:path-params {:name name}}}}))
+  [who]
+  (h/request-from-map {:attributes {:match {:path-params {:name who}}}}))
 
 (defn- json-body-request
   "A request whose JSON body has already been parsed into `:parsed-body`."

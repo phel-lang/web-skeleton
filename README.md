@@ -139,8 +139,8 @@ goes first to catch throws and answer a JSON `500`:
 (defn wrap-exception [handler request]
   (try
     (handler request)
-    (catch \Throwable e
-      (php/error_log (str "[err] " (php/-> e (getMessage))))
+    (catch Throwable e
+      (php/error_log (str "[err] " (.getMessage e)))
       (h/json-response 500 {:error "internal server error"}))))
 ```
 
