@@ -5,4 +5,4 @@
 ;; invalid marker; (sc/explain schema value) explains a failure.
 (def greet-params
   [:map
-   [:name [:and :string [:re "/^.{1,50}$/"]]]])
+   [:name [:and :string [:re "/^.{1,50}$/Du"]]]])
