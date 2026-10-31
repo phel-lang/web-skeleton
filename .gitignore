@@ -4,7 +4,7 @@
 data/
 out/
 var/
-vendor/
+vendor
 
 *.cache
 .phel-repl-history
