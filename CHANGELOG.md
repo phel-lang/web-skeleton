@@ -1,47 +1,43 @@
 # Changelog
 
 All notable changes to this skeleton are documented here.
-Format follows [Keep a Changelog](https://keepachangelog.com/); this project
-tracks [Phel](https://github.com/phel-lang/phel-lang) releases rather than its
-own versions.
+
+The format follows [Keep a Changelog](https://keepachangelog.com/). This project tracks [Phel](https://github.com/phel-lang/phel-lang) releases and has no versions of its own.
 
 ## [Unreleased]
 
 ### Added
 
-- Request validation with `phel.schema` (`module/schema.phel`).
-- JSON request-body parsing and a `POST /greet` JSON endpoint.
-- `web-skeleton.http.response`: semantic helpers (`ok`, `bad-request`,
-  `not-found`) over `phel.http`'s `json-response` / `html-response`.
-- `web-skeleton.config`: env-resolved configuration map.
-- `wrap-exception` middleware: catches uncaught handler errors and answers a
-  JSON `500` instead of leaking a stack trace.
-- `web-skeleton.router`: route table kept as plain data, separate from wiring.
-- REPL `(comment …)` blocks for driving handlers and the app without a server.
-- Tests: end-to-end `router-test` (404/405/dispatch) and `middleware-test`.
-- Production `build/Dockerfile.prod` (multi-stage, serves the compiled `out/`).
-- `.editorconfig` and `composer check` / `composer format:check` scripts.
-- CI: dependency caching, a formatting gate, and a build-verify step.
+- `HEAD` requests are served as `GET` without a body.
+- Security headers on every response: `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, and a Content-Security-Policy.
+- Global middleware now wraps the whole router, so `404`, `405`, and `500` responses get the `Server` header, security headers, logging, and the exception guard.
+- `wrap-exception` logs the exception class, location, and trace.
+- Request validation with `phel.schema`, a `POST /greet` JSON endpoint, and JSON body parsing.
+- `web-skeleton.http.response` helpers (`ok`, `bad-request`, `not-found`, `json-response`) and `web-skeleton.config`, an environment-based configuration map.
+- `build/smoke.sh` and CI jobs that smoke-test the compiled build and the production image.
+- `composer lint` (`phel lint`, with unused code as an error) in `composer check` and CI.
+- `composer validate --strict` in CI.
+- Instructions for Claude Code and Codex in `.agnostic-ai/`, synced with agnostic-ai.
+- `.editorconfig`, `composer check`, and `composer format:check`.
 
 ### Changed
 
-- `phel-config.php` uses `PhelConfig::forProject(ProjectLayout::Flat)` instead
-  of the verbose builder, dropping the src/tests/vendor/format/temp lines now
-  covered by the layout preset; enabled `->withOptimizationLevel(2)`.
-- `app.phel` pipes the request through the handler with thread-first `->`.
-- Routing uses `r/compiled-router` (precompiled Symfony matcher, ~3x faster)
-  instead of `r/router`, now that phel-lang/phel-lang#2664 lets compiled routes
-  carry `:handler` functions.
-- Method dispatch moved from `phel.match` in the ping handler to the router's
-  per-method route data; the router now answers `405` itself.
-- Controllers build responses via `phel.http`'s `json-response` /
-  `html-response` (added upstream in phel-lang/phel-lang#2271) plus the
-  `web-skeleton.http.response` sugar, instead of a duplicated private helper.
-- `app.phel` is now a thin IO entry point; routing lives in `router.phel`.
-- Tests build requests with `phel.http/request-from-map` instead of raw maps.
-- Bumped the dev `build/Dockerfile` to PHP 8.4.
-- Committed `composer.lock` for reproducible installs.
+- The production image runs FrankenPHP instead of `php -S`, with an 8 MB body limit and timeouts. It runs as an unprivileged user with production PHP settings. It is about half the size.
+- The development `docker compose` setup now serves the app on port 8080.
+- A JSON body that cannot be encoded now gives a JSON `500`, not an empty `200`.
+- The greet name rule counts characters, rejects invalid UTF-8, and rejects a trailing newline.
+- Routing uses `r/compiled-router`, and the router answers `405` from the per-method route data.
+- `app.phel` is a thin entry point that also catches errors from request parsing and response output.
+- `phel-config.php` uses `ProjectLayout::Flat` and optimization level 2.
+- Requires `phel-lang/phel-lang` `^0.54` and PHP 8.5.
+- `composer.lock` is committed.
 
 ### Removed
 
-- Unused Phel export config (it pointed at non-existent directories).
+- Unused Phel export config.
+- The `phel agent-install` steps in the README, replaced by agnostic-ai.
+
+### Fixed
+
+- `GET /greet/{name}` no longer answers an empty `200` for invalid UTF-8.
+- The dev `docker compose` setup no longer starts an unreachable php-fpm.
