@@ -40,6 +40,7 @@ composer test          # run phel tests
 composer format        # format src/ and tests/
 composer check         # format:check + test (run before pushing)
 composer repl          # interactive Phel REPL
+build/smoke.sh URL     # HTTP smoke test against a running server or container
 ```
 
 ## Project layout
