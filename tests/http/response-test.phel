@@ -1,0 +1,27 @@
+(ns web-skeleton-tests.http.response-test
+  (:require web-skeleton.http.response :as resp)
+  (:require phel.json :as json)
+  (:require phel.test :refer [deftest is]))
+
+(deftest ok-is-json-200
+  (let [res (resp/ok {:a 1})]
+    (is (= 200 (:status res)))
+    (is (= "application/json" (get-in res [:headers :content-type])))
+    (is (= {:a 1} (json/decode (:body res))))))
+
+(deftest bad-request-is-json-400
+  (let [res (resp/bad-request "nope")]
+    (is (= 400 (:status res)))
+    (is (= "nope" (:error (json/decode (:body res)))))))
+
+(deftest method-not-allowed-is-json-405
+  (is (= 405 (:status (resp/method-not-allowed)))))
+
+(deftest internal-error-is-json-500
+  (let [res (resp/internal-error)]
+    (is (= 500 (:status res)))
+    (is (= "internal server error" (:error (json/decode (:body res)))))))
+
+(deftest unencodable-body-throws-instead-of-empty-200
+  (let [threw (try (resp/ok {:x "\xFF"}) false (catch Throwable _ true))]
+    (is threw)))

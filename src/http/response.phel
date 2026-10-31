@@ -1,20 +1,39 @@
 (ns web-skeleton.http.response
-  (:require phel.http :as h))
+  (:require phel.http :as h)
+  (:require phel.json :as json))
 
-;; Semantic response helpers shared by every controller. The content-type +
-;; body plumbing lives in phel.http (`json-response` / `html-response`); this
-;; namespace adds the intent-revealing sugar (`ok`, `bad-request`, `not-found`)
-;; on top so handlers read as outcomes, not status numbers.
+;; Semantic response helpers shared by every controller. This namespace owns
+;; JSON encoding: phel.http's `json-response` swallows `json_encode` failures
+;; (invalid UTF-8, NAN/INF) and sends an empty 200, so bodies are encoded here
+;; with JSON_THROW_ON_ERROR and `wrap-exception` turns a failure into a 500.
+
+(defn json-response
+  "JSON response with `status`. Throws JsonException when `data` cannot be encoded."
+  [status data]
+  (h/response-from-map
+   {:status  status
+    :headers {:content-type "application/json"}
+    :body    (json/encode data {:flags php/JSON_THROW_ON_ERROR})}))
 
 (defn ok
   "200 JSON response."
   [data]
-  (h/json-response 200 data))
+  (json-response 200 data))
 
 (defn bad-request
   "400 JSON error `{:error message}`."
   [message]
-  (h/json-response 400 {:error message}))
+  (json-response 400 {:error message}))
+
+(defn method-not-allowed
+  "405 JSON error."
+  []
+  (json-response 405 {:error "method not allowed"}))
+
+(defn internal-error
+  "500 JSON error. The payload is constant, so encoding cannot fail."
+  []
+  (json-response 500 {:error "internal server error"}))
 
 (defn not-found
   "404 HTML response."

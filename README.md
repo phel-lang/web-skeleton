@@ -95,8 +95,9 @@ the router answers `405` itself. `r/handler` wraps the router into a
 ```
 
 Use the helpers in `web-skeleton.http.response` (`resp/ok`, `resp/bad-request`,
-`resp/not-found`) or `phel.http`'s `h/json-response` / `h/html-response` for an
-explicit status.
+`resp/not-found`) or `resp/json-response` for an explicit status. They encode
+JSON with `JSON_THROW_ON_ERROR`, so an unencodable body becomes a `500` through
+`wrap-exception` instead of an empty `200`.
 
 ## Request validation (`phel.schema`)
 
@@ -141,7 +142,7 @@ goes first to catch throws and answer a JSON `500`:
     (handler request)
     (catch Throwable e
       (php/error_log (str "[err] " (.getMessage e)))
-      (h/json-response 500 {:error "internal server error"}))))
+      (resp/internal-error))))
 ```
 
 ## AI assistants

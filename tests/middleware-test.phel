@@ -1,5 +1,6 @@
 (ns web-skeleton-tests.middleware-test
   (:require web-skeleton.middleware :as mw)
+  (:require web-skeleton.http.response :as resp)
   (:require phel.json :as json)
   (:require phel.test :refer [deftest is]))
 
@@ -18,3 +19,9 @@
   (let [inner (fn [_req] {:status 200 :headers {}})
         res   (mw/wrap-server-header inner {})]
     (is (= "phel-web-skeleton" (get-in res [:headers :server])))))
+
+(deftest wrap-exception-turns-unencodable-body-into-500
+  (let [inner (fn [_req] (resp/ok {:x "\xFF"}))
+        res   (mw/wrap-exception inner {})]
+    (is (= 500 (:status res)))
+    (is (= "internal server error" (:error (json/decode (:body res)))))))
