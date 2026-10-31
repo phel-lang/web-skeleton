@@ -18,21 +18,28 @@ COPY . .
 RUN composer build
 
 # ---- Stage 2: runtime ----
-FROM php:8.5-cli AS runtime
+# FrankenPHP (Caddy + PHP): multi-threaded, serves public/ directly, falls back
+# to public/index.php, and has request body and timeout limits (build/Caddyfile).
+FROM dunglas/frankenphp:php8.5-alpine AS runtime
 WORKDIR /app
 
 # Production PHP settings: no errors or PHP version leaked to clients, errors
 # go to stderr. Run as an unprivileged user.
 RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
-    && printf 'expose_php = Off\ndisplay_errors = Off\nlog_errors = On\nerror_log = /proc/self/fd/2\n' > "$PHP_INI_DIR/conf.d/00-skeleton.ini" \
-    && useradd --system --uid 10001 --no-create-home app
+    && printf 'expose_php = Off\ndisplay_errors = Off\nlog_errors = On\nerror_log = /proc/self/fd/2\nmax_execution_time = 25\n' > "$PHP_INI_DIR/conf.d/00-skeleton.ini" \
+    && adduser -S -D -H -u 10001 app \
+    && mkdir -p /data/caddy /config/caddy \
+    && chown -R app /data /config \
+    && { ! getcap /usr/local/bin/frankenphp | grep -q . || setcap -r /usr/local/bin/frankenphp; }
+
+COPY build/Caddyfile /etc/frankenphp/Caddyfile
 
 # Only the artifacts needed to serve.
-COPY --from=build --chown=app:app /app/vendor ./vendor
-COPY --from=build --chown=app:app /app/out ./out
-COPY --from=build --chown=app:app /app/public ./public
+COPY --from=build --chown=app /app/vendor ./vendor
+COPY --from=build --chown=app /app/out ./out
+COPY --from=build --chown=app /app/public ./public
 
 USER app
 EXPOSE 8080
-# Use the compiled out/index.php (public/index.php loads it when present).
-CMD ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+# FrankenPHP's default command runs `frankenphp run --config /etc/frankenphp/Caddyfile`.
+# public/index.php loads the compiled out/index.php when present.
