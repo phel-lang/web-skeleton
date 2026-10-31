@@ -26,3 +26,9 @@
   [handler request]
   (let [response (handler request)]
     (update response :headers assoc :server (:server-header cfg/config))))
+
+(defn compose
+  "Wraps `handler` in `middlewares`, each a 2-arg `(fn [handler request])`.
+  The first entry is outermost."
+  [middlewares handler]
+  (reduce (fn [inner mw] (partial mw inner)) handler (reverse middlewares)))

@@ -132,9 +132,12 @@ default and the schema reports the missing field.
 
 ## Middleware
 
-A 2-arg function `(fn [handler request] ...)`, composed via `:middleware` on
-`r/handler` (global) or a route. First entry is outermost — `wrap-exception`
-goes first to catch throws and answer a JSON `500`:
+A 2-arg function `(fn [handler request] ...)`. Global middleware lives in
+`global-middleware` in `src/router.phel` and wraps the whole router with
+`mw/compose`, so `404` and `405` responses pass through it too (the router's own
+`:middleware` option skips them). Per-route `:middleware` still works. First
+entry is outermost: `wrap-server-header` goes first so it also tags the `500`,
+and `wrap-exception` sits next to catch throws and answer a JSON `500`:
 
 ```phel
 (defn wrap-exception [handler request]
