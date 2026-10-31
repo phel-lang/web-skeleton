@@ -24,7 +24,7 @@ WORKDIR /app
 # Production PHP settings: no errors or PHP version leaked to clients, errors
 # go to stderr. Run as an unprivileged user.
 RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
-    && printf 'expose_php = Off\ndisplay_errors = Off\nlog_errors = On\nerror_log = /proc/self/fd/2\n' > "$PHP_INI_DIR/conf.d/zz-skeleton.ini" \
+    && printf 'expose_php = Off\ndisplay_errors = Off\nlog_errors = On\nerror_log = /proc/self/fd/2\n' > "$PHP_INI_DIR/conf.d/00-skeleton.ini" \
     && useradd --system --uid 10001 --no-create-home app
 
 # Only the artifacts needed to serve.

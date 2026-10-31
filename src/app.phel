@@ -16,4 +16,8 @@
         h/emit-response)
     (catch Throwable e
       (php/error_log (str "[err] " (php/get_class e) ": " (.getMessage e)))
+      ;; Drop headers queued before the throw (a handler's Set-Cookie or
+      ;; Location) so the 500 does not carry them.
+      (when-not (php/headers_sent)
+        (php/header_remove))
       (h/emit-response (resp/internal-error)))))
