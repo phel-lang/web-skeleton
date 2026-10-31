@@ -10,7 +10,9 @@
   (try
     (handler request)
     (catch Throwable e
-      (php/error_log (str "[err] " (.getMessage e)))
+      (php/error_log (str "[err] " (php/get_class e) ": " (.getMessage e)
+                          " at " (.getFile e) ":" (.getLine e)))
+      (php/error_log (str "[err] " (.getTraceAsString e)))
       (resp/internal-error))))
 
 (defn wrap-logger

@@ -40,3 +40,15 @@
         res (app {})]
     (is (= 500 (:status res)))
     (is (= "phel-web-skeleton" (get-in res [:headers :server])))))
+
+(deftest wrap-exception-logs-class-message-and-location
+  (let [log      (php/tempnam (php/sys_get_temp_dir) "pws-log")
+        previous (php/ini_get "error_log")
+        _        (php/ini_set "error_log" log)
+        boom     (fn [_req] (throw (new RuntimeException "boom")))
+        _        (mw/wrap-exception boom {})
+        _        (php/ini_set "error_log" previous)
+        logged   (php/file_get_contents log)]
+    (php/unlink log)
+    (is (php/str_contains logged "RuntimeException: boom"))
+    (is (= 1 (php/preg_match "/ at .+:[0-9]+/" logged)))))
