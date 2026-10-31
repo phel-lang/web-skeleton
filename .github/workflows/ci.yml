@@ -33,6 +33,9 @@ jobs:
           key: composer-${{ runner.os }}-php${{ matrix.php }}-${{ hashFiles('**/composer.lock') }}
           restore-keys: composer-${{ runner.os }}-php${{ matrix.php }}-
 
+      - name: Validate composer files
+        run: composer validate --strict
+
       - name: Install dependencies
         run: composer install --no-interaction --no-ansi --no-progress
 
@@ -44,3 +47,72 @@ jobs:
 
       - name: Verify production build
         run: composer build
+
+  smoke:
+    name: HTTP smoke test (compiled)
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-ansi --no-progress --no-dev
+
+      - name: Build
+        run: |
+          composer build
+          test -f out/index.php
+
+      - name: Start server
+        run: |
+          php -S 127.0.0.1:8080 -t public > server.log 2>&1 &
+          for i in $(seq 1 20); do
+            curl -sf http://127.0.0.1:8080/ping > /dev/null && exit 0
+            sleep 0.5
+          done
+          echo "server did not start"
+          cat server.log
+          exit 1
+
+      - name: Smoke test
+        run: ./build/smoke.sh http://127.0.0.1:8080
+
+      - name: Server log
+        if: failure()
+        run: cat server.log
+
+  docker:
+    name: Production image smoke test
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -f build/Dockerfile.prod -t phel-web-skeleton .
+
+      - name: Start container
+        run: |
+          docker run -d --name app -p 8080:8080 phel-web-skeleton
+          for i in $(seq 1 20); do
+            curl -sf http://127.0.0.1:8080/ping > /dev/null && exit 0
+            sleep 0.5
+          done
+          echo "container did not start"
+          docker logs app
+          exit 1
+
+      - name: Smoke test
+        run: ./build/smoke.sh http://127.0.0.1:8080
+
+      - name: Container log
+        if: failure()
+        run: docker logs app
