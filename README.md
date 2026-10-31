@@ -182,9 +182,17 @@ docker build -f build/Dockerfile.prod -t phel-web-skeleton .
 docker run --rm -p 8080:8080 phel-web-skeleton
 ```
 
-The prod image runs as an unprivileged user with PHP production settings
-(`display_errors` and `expose_php` off, errors on stderr). Override them with
-an extra file in `$PHP_INI_DIR/conf.d/`; the image's own file is `00-skeleton.ini`, so later names win.
+The prod image runs [FrankenPHP](https://frankenphp.dev/) (Caddy plus PHP) as an
+unprivileged user. It serves `public/` directly and sends everything else to
+`public/index.php`. `build/Caddyfile` sets the limits: request bodies over 8 MB
+are cut off (the handler sees an empty body), and PHP stops a request after 25 s and Caddy closes the connection at 30 s.
+`SERVER_HEADER` sets the `Server` header. PHP runs with production settings
+(`display_errors` and `expose_php` off, errors on stderr). Override them with an
+extra file in `$PHP_INI_DIR/conf.d/`; the image's own file is `00-skeleton.ini`,
+so later names win.
+
+`composer run:prod` still uses PHP's built-in server. It handles one request at
+a time, so use it for local checks only.
 
 ## More
 

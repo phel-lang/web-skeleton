@@ -1,0 +1,32 @@
+{
+	skip_install_trust
+	auto_https off
+	frankenphp
+
+	servers {
+		timeouts {
+			read_header 10s
+			read_body 30s
+			# Longer than max_execution_time (25s in the Dockerfile), so PHP
+			# fails a slow request before Caddy drops the connection.
+			write 30s
+			idle 2m
+		}
+	}
+}
+
+:8080 {
+	root * /app/public
+
+	request_body {
+		max_size 8MB
+	}
+
+	# Caddy and the app would each send a Server header. Set one value, from the
+	# same SERVER_HEADER variable and default as src/config.phel. Quoted so a
+	# value with spaces stays one token.
+	header >Server "{$SERVER_HEADER:phel-web-skeleton}"
+
+	encode zstd gzip
+	php_server
+}
