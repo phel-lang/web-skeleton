@@ -82,6 +82,9 @@ the router answers `405` itself. `r/handler` wraps the router into a
 `request -> response` function and accepts `:middleware`, `:not-found`,
 `:method-not-allowed`, and `:not-acceptable` options.
 
+`HEAD` is served as `GET` with an empty body by `wrap-head` in `src/router.phel`,
+so no route needs a `:head` entry.
+
 > The skeleton uses `r/compiled-router`, which precompiles the Symfony matcher
 > at macro-expansion (~3x faster matching). It needs a statically-known route
 > table; switch to `r/router` if you build routes from runtime values.

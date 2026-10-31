@@ -38,3 +38,21 @@
         res (app (h/request-from-map {:method "GET" :uri "http://localhost/missing"}))]
     (is (= 500 (:status res)))
     (is (= "phel-web-skeleton" (get-in res [:headers :server])))))
+
+(deftest head-on-json-route-serves-get-without-body
+  (let [res (request "HEAD" "/ping")]
+    (is (= 200 (:status res)))
+    (is (= "application/json" (get-in res [:headers :content-type])))
+    (is (= "" (:body res)))))
+
+(deftest head-on-html-route-serves-get-without-body
+  (let [res (request "HEAD" "/")]
+    (is (= 200 (:status res)))
+    (is (= "text/html; charset=utf-8" (get-in res [:headers :content-type])))
+    (is (= "" (:body res)))))
+
+(deftest head-on-unknown-path-returns-404
+  (is (= 404 (:status (request "HEAD" "/nope")))))
+
+(deftest head-on-post-only-route-returns-405
+  (is (= 405 (:status (request "HEAD" "/greet")))))

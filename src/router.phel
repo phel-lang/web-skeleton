@@ -24,16 +24,26 @@
 (def global-middleware
   [mw/wrap-server-header mw/wrap-exception mw/wrap-logger])
 
+;; HEAD is GET without a body (RFC 9110 section 9.1). The router dispatches on
+;; the exact method, so the rewrite happens before it matches. It sits inside
+;; the global middleware, so the logger still sees HEAD.
+(defn- wrap-head [handler]
+  (fn [request]
+    (if (= "HEAD" (:method request))
+      (assoc (handler (assoc request :method "GET")) :body "")
+      (handler request))))
+
 ;; The router answers 404/405 itself via :not-found / :method-not-allowed.
 (def app
   (mw/compose
    global-middleware
-   (r/handler
-    ;; compiled-router precompiles the Symfony matcher at macro-expansion (~3x
-    ;; faster matching); needs a statically-known route table, which `routes` is.
-    (r/compiled-router routes)
-    {:not-found          ctrl/not-found-handler
-     :method-not-allowed ctrl/method-not-allowed-handler})))
+   (wrap-head
+    (r/handler
+     ;; compiled-router precompiles the Symfony matcher at macro-expansion (~3x
+     ;; faster matching); needs a statically-known route table, which `routes` is.
+     (r/compiled-router routes)
+     {:not-found          ctrl/not-found-handler
+      :method-not-allowed ctrl/method-not-allowed-handler}))))
 
 ;; Drive the whole app from the REPL without an HTTP server. Build a request
 ;; with `request-from-map`, run it through `app`, inspect the response map.
