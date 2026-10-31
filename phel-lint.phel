@@ -1,0 +1,5 @@
+;; `phel lint` exits 1 only on errors. Unused code is a warning by default, so
+;; promote it: `composer check` and CI should fail on it.
+{:rules {:phel/unused-require :error
+         :phel/unused-import  :error
+         :phel/unused-binding :error}}

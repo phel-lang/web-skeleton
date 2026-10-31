@@ -12,7 +12,7 @@ composer run:dev    # http://localhost:8080
 ## Before you push
 
 ```bash
-composer check      # runs format:check + tests (same as CI)
+composer check      # runs format:check + lint + tests (same as CI)
 ```
 
 If formatting fails, run `composer format` to fix it.
