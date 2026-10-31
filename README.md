@@ -146,14 +146,18 @@ goes first to catch throws and answer a JSON `500`:
 
 ## AI assistants
 
-Agent-agnostic — no tool-specific files committed. Generate adapters with Phel's
-installer (output is `.gitignore`d, so each dev installs their own):
+Instructions for AI coding tools live in `.agnostic-ai/` and are synced to
+Claude Code and Codex with [agnostic-ai](https://agnostic-ai.org/). The
+generated files (`CLAUDE.md`, `AGENTS.md`, `.claude/`, `.agents/`) are
+`.gitignore`d, so each dev generates their own after cloning:
 
 ```bash
-vendor/bin/phel agent-install --auto    # agents already used in this project
-vendor/bin/phel agent-install claude     # or: cursor, codex, gemini, copilot, aider
-vendor/bin/phel agent-install --check    # catch drift after composer update
+agnostic-ai sync          # write the tool files
+agnostic-ai sync --check  # confirm they match .agnostic-ai/
 ```
+
+Edit `.agnostic-ai/AGNOSTIC_AI.md` and `agnostic-ai.yaml`, never the generated
+files. To support another tool, add it under `targets` in `agnostic-ai.yaml`.
 
 ## Docker
 
