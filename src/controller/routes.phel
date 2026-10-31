@@ -55,7 +55,7 @@
   (resp/not-found "<h1>404</h1><p>Page not found.</p>"))
 
 (defn method-not-allowed-handler [_req]
-  (h/json-response 405 {:error "method not allowed"}))
+  (resp/method-not-allowed))
 
 ;; Handlers are plain `request -> response` functions — poke them directly in
 ;; the REPL, no router or HTTP server needed.

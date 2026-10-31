@@ -1,6 +1,6 @@
 (ns web-skeleton.middleware
   (:require web-skeleton.config :as cfg)
-  (:require phel.http :as h))
+  (:require web-skeleton.http.response :as resp))
 
 (defn wrap-exception
   "Outermost middleware: catches any uncaught error from an inner handler and
@@ -11,7 +11,7 @@
     (handler request)
     (catch Throwable e
       (php/error_log (str "[err] " (.getMessage e)))
-      (h/json-response 500 {:error "internal server error"}))))
+      (resp/internal-error))))
 
 (defn wrap-logger
   "Middleware that prints `METHOD path` for every request before delegating."
