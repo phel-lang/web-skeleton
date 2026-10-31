@@ -140,7 +140,10 @@ A 2-arg function `(fn [handler request] ...)`. Global middleware lives in
 `mw/compose`, so `404` and `405` responses pass through it too (the router's own
 `:middleware` option skips them). Per-route `:middleware` still works. First
 entry is outermost: `wrap-server-header` goes first so it also tags the `500`,
-and `wrap-exception` sits next to catch throws and answer a JSON `500`:
+`wrap-security-headers` adds `nosniff`, `X-Frame-Options`, `Referrer-Policy` and a
+CSP (handler headers win), and `wrap-exception` sits next to catch throws and
+answer a JSON `500`. Add `Strict-Transport-Security` behind TLS; the skeleton
+serves plain HTTP:
 
 ```phel
 (defn wrap-exception [handler request]

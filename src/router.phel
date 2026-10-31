@@ -22,7 +22,7 @@
 ;; outermost: the Server header also tags the 500 that `wrap-exception` builds,
 ;; and `wrap-exception` guards the logger and every handler, 404/405 included.
 (def global-middleware
-  [mw/wrap-server-header mw/wrap-exception mw/wrap-logger])
+  [mw/wrap-server-header mw/wrap-security-headers mw/wrap-exception mw/wrap-logger])
 
 ;; HEAD is GET without a body (RFC 9110 section 9.1). The router dispatches on
 ;; the exact method, so the rewrite happens before it matches. It sits inside
