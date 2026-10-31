@@ -1,7 +1,11 @@
-## 📚 Description
+## What and why
 
-Replace this text with a short description of your feature/bugfix. 
+What changes, and the reason for it. Link the issue with `Closes #123`.
 
-## 🔖 Changes
+## How I checked it
 
-- List individual changes in more detail
+The commands you ran and what they showed.
+
+- [ ] `composer check` passes
+- [ ] Tests added or updated for behavior changes
+- [ ] README and changelog updated if a command, route, or setting changed
