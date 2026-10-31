@@ -17,15 +17,23 @@
    ["/greet" {:name ::greet-post
               :post {:handler ctrl/greet-post-handler}}]])
 
+;; Applied around the whole router, not through its `:middleware` option, which
+;; skips the :not-found and :method-not-allowed handlers. First entry is
+;; outermost: the Server header also tags the 500 that `wrap-exception` builds,
+;; and `wrap-exception` guards the logger and every handler, 404/405 included.
+(def global-middleware
+  [mw/wrap-server-header mw/wrap-exception mw/wrap-logger])
+
 ;; The router answers 404/405 itself via :not-found / :method-not-allowed.
 (def app
-  (r/handler
-   ;; compiled-router precompiles the Symfony matcher at macro-expansion (~3x
-   ;; faster matching); needs a statically-known route table, which `routes` is.
-   (r/compiled-router routes)
-   {:middleware         [mw/wrap-exception mw/wrap-logger mw/wrap-server-header]
-    :not-found          ctrl/not-found-handler
-    :method-not-allowed ctrl/method-not-allowed-handler}))
+  (mw/compose
+   global-middleware
+   (r/handler
+    ;; compiled-router precompiles the Symfony matcher at macro-expansion (~3x
+    ;; faster matching); needs a statically-known route table, which `routes` is.
+    (r/compiled-router routes)
+    {:not-found          ctrl/not-found-handler
+     :method-not-allowed ctrl/method-not-allowed-handler})))
 
 ;; Drive the whole app from the REPL without an HTTP server. Build a request
 ;; with `request-from-map`, run it through `app`, inspect the response map.

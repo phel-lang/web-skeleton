@@ -1,6 +1,8 @@
 (ns web-skeleton-tests.router-test
   (:require web-skeleton.router :as router)
+  (:require web-skeleton.middleware :as mw)
   (:require phel.http :as h)
+  (:require phel.router :as r)
   (:require phel.json :as json)
   (:require phel.test :refer [deftest is]))
 
@@ -22,3 +24,17 @@
 (deftest wrong-method-returns-405
   ;; The router rejects unsupported methods — handlers never see them.
   (is (= 405 (:status (request "DELETE" "/ping")))))
+
+(deftest not-found-carries-server-header
+  (is (= "phel-web-skeleton" (get-in (request "GET" "/nope") [:headers :server]))))
+
+(deftest method-not-allowed-carries-server-header
+  (is (= "phel-web-skeleton" (get-in (request "DELETE" "/ping") [:headers :server]))))
+
+(deftest throwing-not-found-handler-becomes-500-with-server-header
+  (let [app (mw/compose router/global-middleware
+                        (r/handler (r/router [["/x" {:get {:handler (fn [_] {:status 200})}}]])
+                                   {:not-found (fn [_] (throw (new Exception "boom")))}))
+        res (app (h/request-from-map {:method "GET" :uri "http://localhost/missing"}))]
+    (is (= 500 (:status res)))
+    (is (= "phel-web-skeleton" (get-in res [:headers :server])))))

@@ -25,3 +25,18 @@
         res   (mw/wrap-exception inner {})]
     (is (= 500 (:status res)))
     (is (= "internal server error" (:error (json/decode (:body res)))))))
+
+(deftest compose-puts-first-middleware-outermost
+  (let [tag (fn [label]
+              (fn [handler request]
+                (let [res (handler request)]
+                  (assoc res :order (vec (cons label (get res :order [])))))))
+        app (mw/compose [(tag "a") (tag "b")] (fn [_] {:status 200}))]
+    (is (= ["a" "b"] (:order (app {}))))))
+
+(deftest server-header-outermost-tags-exception-500
+  (let [app (mw/compose [mw/wrap-server-header mw/wrap-exception]
+                        (fn [_] (throw (new Exception "boom"))))
+        res (app {})]
+    (is (= 500 (:status res)))
+    (is (= "phel-web-skeleton" (get-in res [:headers :server])))))
