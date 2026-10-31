@@ -56,3 +56,9 @@
 
 (deftest head-on-post-only-route-returns-405
   (is (= 405 (:status (request "HEAD" "/greet")))))
+
+(deftest security-headers-on-every-response
+  (doseq [res [(request "GET" "/") (request "GET" "/ping") (request "GET" "/nope") (request "DELETE" "/ping")]]
+    (is (= "nosniff" (get-in res [:headers :x-content-type-options])))
+    (is (= "DENY" (get-in res [:headers :x-frame-options])))
+    (is (= "no-referrer" (get-in res [:headers :referrer-policy])))))
