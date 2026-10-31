@@ -178,6 +178,10 @@ docker build -f build/Dockerfile.prod -t phel-web-skeleton .
 docker run --rm -p 8080:8080 phel-web-skeleton
 ```
 
+The prod image runs as an unprivileged user with PHP production settings
+(`display_errors` and `expose_php` off, errors on stderr). Override them with
+an extra file in `$PHP_INI_DIR/conf.d/`.
+
 ## More
 
 - [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md)

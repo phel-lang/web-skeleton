@@ -1,11 +1,19 @@
 (ns web-skeleton.app
   (:require web-skeleton.router :as router)
+  (:require web-skeleton.http.response :as resp)
   (:require phel.http :as h))
 
 ;; Entry point: build the request from PHP globals, run it through the app
 ;; handler, emit the response. The route table and wiring live in
 ;; web-skeleton.router; everything here is the IO edge.
+;; The try wraps parsing and emission too, which sit outside the router's
+;; `wrap-exception`, so a throw there still answers a JSON 500 and not a PHP
+;; error page.
 (when-not *build-mode*
-  (-> (h/request-from-globals)
-      router/app
-      h/emit-response))
+  (try
+    (-> (h/request-from-globals)
+        router/app
+        h/emit-response)
+    (catch Throwable e
+      (php/error_log (str "[err] " (php/get_class e) ": " (.getMessage e)))
+      (h/emit-response (resp/internal-error)))))
