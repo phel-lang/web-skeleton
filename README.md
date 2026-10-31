@@ -105,7 +105,7 @@ a handler — `sc/conform` coerces and returns the value, or `sc/invalid-marker`
 on failure:
 
 ```phel
-(def greet-params [:map [:name [:and :string [:re "/^.{1,50}$/"]]]])
+(def greet-params [:map [:name [:and :string [:re "/^.{1,50}$/Du"]]]])
 
 (let [result (sc/conform greet-params {:name name})]
   (if (= result sc/invalid-marker)

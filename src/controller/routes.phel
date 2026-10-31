@@ -12,7 +12,9 @@
   [schema data]
   (let [result (sc/conform schema data)]
     (if (= result sc/invalid-marker)
-      [:error (sc/human-readable-explain (sc/explain schema data))]
+      ;; The explanation echoes the rejected value; invalid UTF-8 would make
+      ;; json_encode fail and the response body come out empty.
+      [:error (php/mb_scrub (sc/human-readable-explain (sc/explain schema data)))]
       [:ok result])))
 
 (defn- greet-response

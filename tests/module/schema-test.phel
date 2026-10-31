@@ -18,3 +18,13 @@
 (deftest validate-matches-conform
   (is (sc/validate schema/greet-params {:name "ok"}))
   (is (not (sc/validate schema/greet-params {:name ""}))))
+
+(deftest multibyte-name-counts-characters
+  (is (sc/validate schema/greet-params {:name (apply str (repeat 50 "é"))}))
+  (is (not (sc/validate schema/greet-params {:name (apply str (repeat 51 "é"))}))))
+
+(deftest invalid-utf8-name-is-invalid
+  (is (not (sc/validate schema/greet-params {:name "\xFF"}))))
+
+(deftest trailing-newline-name-is-invalid
+  (is (not (sc/validate schema/greet-params {:name "Phel\n"}))))

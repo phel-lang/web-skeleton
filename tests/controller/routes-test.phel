@@ -51,6 +51,11 @@
 (deftest greet-handler-rejects-too-long-name
   (is (= 400 (:status (routes/greet-handler (path-param-request long-name))))))
 
+(deftest greet-handler-rejects-invalid-utf8-name
+  (let [res (routes/greet-handler (path-param-request "\xFF"))]
+    (is (= 400 (:status res)))
+    (is (string? (:error (json/decode (:body res)))))))
+
 (deftest greet-post-handler-rejects-empty-body
   ;; No request body -> phel.http leaves :parsed-body nil -> validation fails.
   (is (= 400 (:status (routes/greet-post-handler (h/request-from-map {}))))))
