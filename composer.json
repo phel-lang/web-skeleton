@@ -31,9 +31,11 @@
     "build": "vendor/bin/phel build --no-cache",
     "format": "vendor/bin/phel format",
     "format:check": "vendor/bin/phel format --dry-run",
+    "lint": "vendor/bin/phel lint",
     "test": "vendor/bin/phel test",
     "check": [
       "@format:check",
+      "@lint",
       "@test"
     ],
     "repl": [

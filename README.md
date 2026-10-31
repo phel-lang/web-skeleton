@@ -38,7 +38,8 @@ composer run:prod      # build once, run compiled PHP
 composer build         # AOT-compile src/ into out/
 composer test          # run phel tests
 composer format        # format src/ and tests/
-composer check         # format:check + test (run before pushing)
+composer lint          # phel lint: unresolved symbols, unused requires, ...
+composer check         # format:check + lint + test (run before pushing)
 composer repl          # interactive Phel REPL
 build/smoke.sh URL     # HTTP smoke test against a running server or container
 ```

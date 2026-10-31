@@ -12,7 +12,8 @@ Phel Web Skeleton: a small web app starter in [Phel](https://phel-lang.org/), a 
 - `composer run:dev`: dev server on http://localhost:8080, recompiles every request.
 - `composer test`: run the Phel tests.
 - `composer format`: format `src/` and `tests/`.
-- `composer check`: format check plus tests. Run it before pushing; CI runs the same.
+- `composer lint`: run `phel lint`.
+- `composer check`: format check, lint, and tests. Run it before pushing; CI runs the same.
 - `composer build`: compile `src/` into `out/`. CI verifies this too.
 
 ## Conventions
