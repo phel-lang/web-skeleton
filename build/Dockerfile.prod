@@ -21,11 +21,18 @@ RUN composer build
 FROM php:8.5-cli AS runtime
 WORKDIR /app
 
-# Only the artifacts needed to serve.
-COPY --from=build /app/vendor ./vendor
-COPY --from=build /app/out ./out
-COPY --from=build /app/public ./public
+# Production PHP settings: no errors or PHP version leaked to clients, errors
+# go to stderr. Run as an unprivileged user.
+RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
+    && printf 'expose_php = Off\ndisplay_errors = Off\nlog_errors = On\nerror_log = /proc/self/fd/2\n' > "$PHP_INI_DIR/conf.d/00-skeleton.ini" \
+    && useradd --system --uid 10001 --no-create-home app
 
+# Only the artifacts needed to serve.
+COPY --from=build --chown=app:app /app/vendor ./vendor
+COPY --from=build --chown=app:app /app/out ./out
+COPY --from=build --chown=app:app /app/public ./public
+
+USER app
 EXPOSE 8080
 # Use the compiled out/index.php (public/index.php loads it when present).
 CMD ["php", "-S", "0.0.0.0:8080", "-t", "public"]
