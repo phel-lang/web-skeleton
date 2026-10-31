@@ -1,11 +1,12 @@
-version: "3.8"
-
 services:
-  phel_web_skeleton:
+  app:
     build:
       context: .
       dockerfile: build/Dockerfile
     container_name: phel_web_skeleton
-    hostname: php
+    ports:
+      - "8080:8080"
     volumes:
       - .:/srv/phel-web-skeleton:delegated
+    # public/index.php prefers a compiled out/, so clear a stale one first.
+    command: sh -c "composer install --no-interaction && rm -rf out && php -S 0.0.0.0:8080 -t public"

@@ -172,11 +172,11 @@ files. To support another tool, add it under `targets` in `agnostic-ai.yaml`.
 ## Docker
 
 ```bash
-# Dev — mounts source, recompiles per request
-docker compose up -d --build
-docker exec -ti -u dev phel_web_skeleton bash && composer install
+# Dev: mounts source, installs dependencies, recompiles per request
+docker compose up --build              # http://localhost:8080
+docker compose exec app composer test  # run commands inside the container
 
-# Prod — multi-stage build → slim runtime serving compiled out/
+# Prod: multi-stage build, slim runtime serving compiled out/
 docker build -f build/Dockerfile.prod -t phel-web-skeleton .
 docker run --rm -p 8080:8080 phel-web-skeleton
 ```
