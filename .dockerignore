@@ -15,3 +15,8 @@ phel-config-local.php
 README.md
 LICENSE
 tests/
+.agnostic-ai/
+.claude/
+.agents/
+AGENTS.md
+CLAUDE.md
