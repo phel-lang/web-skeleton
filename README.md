@@ -10,6 +10,8 @@ You get routing, JSON and HTML responses, middleware, request validation, tests,
 
 You need PHP 8.5 or newer and [Composer](https://getcomposer.org/).
 
+The skeleton requires phel-lang `^1.0.0-rc3` to test the 1.0 release candidate. Pin a stable release before you ship an app.
+
 ```bash
 composer install
 composer run:dev    # http://localhost:8080, recompiles on every request

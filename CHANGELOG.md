@@ -29,7 +29,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/). This project
 - Routing uses `r/compiled-router`, and the router answers `405` from the per-method route data.
 - `app.phel` is a thin entry point that also catches errors from request parsing and response output.
 - `phel-config.php` uses `ProjectLayout::Flat` and optimization level 2.
-- Requires `phel-lang/phel-lang` `^0.54` and PHP 8.5.
+- Requires `phel-lang/phel-lang` `^1.0.0-rc3` and PHP 8.5.
 - `composer.lock` is committed.
 
 ### Removed
